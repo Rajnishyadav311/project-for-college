@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ report.title }} — Clinical Lab Analysis — MediPredict AI{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    {% with active_tab='reports' %}
+        {% include 'includes/patient_sidebar.html' %}
+    {% endwith %}
+
+    <div class="dashboard-content">
+        <!-- Header Banner -->
+        <div class="card card-medi p-4 mb-4 border-0" style="background: linear-gradient(135deg, #0f2b48, #0077b6); color: white;">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div>
+                    <span class="badge bg-white text-primary mb-2 px-3 py-1 fw-bold rounded-pill">
+                        {{ report.get_report_category_display }}
+                    </span>
+                    <h3 class="fw-bold text-white mb-1">{{ report.title }}</h3>
+                    <p class="small text-light opacity-90 mb-0">
+                        Date: {{ report.report_date|date:"d M Y" }} · Patient: {{ report.user.get_full_name|default:report.user.username }} · Report ID: #MP-{{ report.id }}
+                    </p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'reports:download_pdf' report.pk %}" class="btn btn-cyan btn-sm px-3 py-2">
+                        <i class="fa-solid fa-file-pdf me-1"></i> Download Branded PDF
+                    </a>
+                    <a href="{% url 'reports:confirm' report.pk %}" class="btn btn-outline-light btn-sm px-3 py-2">
+                        <i class="fa-solid fa-pen-to-square me-1"></i> Edit Parameters
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metric Summary Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3 col-6">
+                <div class="stat-card">
+                    <div>
+                        <div class="stat-val text-primary">{{ report.total_tests_count }}</div>
+                        <div class="stat-label">Total Tests Evaluated</div>
+                    </div>
+                    <div class="icon-badge badge-navy"><i class="fa-solid fa-list-check"></i></div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-card">
+                    <div>
+                        <div class="stat-val text-success">{{ normal_params.count }}</div>
+                        <div class="stat-label">Within Healthy Range</div>
+                    </div>
+                    <div class="icon-badge badge-green"><i class="fa-solid fa-circle-check"></i></div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-card">
+                    <div>
+                        <div class="stat-val text-danger">{{ abnormal_params.count }}</div>
+                        <div class="stat-label">Attention Needed</div>
+                    </div>
+                    <div class="icon-badge badge-red"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-card">
+                    <div>
+                        <div class="stat-val text-warning">{{ other_params.count }}</div>
+                        <div class="stat-label">Context Needed</div>
+                    </div>
+                    <div class="icon-badge badge-amber"><i class="fa-solid fa-circle-question"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Medical Disclaimer -->
+        <div class="medical-disclaimer-box mb-4">
+            <strong><i class="fa-solid fa-shield-halved me-1"></i> Medical Disclaimer:</strong>
+            This analytical summary evaluates laboratory values against standard clinical reference intervals for educational literacy. Never interpret an isolated laboratory value as a conclusive medical diagnosis. Always share this report with your attending doctor for comprehensive clinical correlation.
+        </div>
+
+        <!-- Abnormal / High Attention Items First -->
+        {% if abnormal_params %}
+            <div class="card card-medi p-4 mb-4 border-start border-4 border-danger">
+                <h5 class="fw-bold text-danger mb-3">
+                    <i class="fa-solid fa-circle-exclamation me-2"></i> Findings Requiring Clinical Attention ({{ abnormal_params.count }})
+                </h5>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light small">
+                            <tr>
+                                <th>Test Name</th>
+                                <th>Measured Result</th>
+                                <th>Standard Reference</th>
+                                <th>Status Flag</th>
+                                <th>Bilingual Interpretation (English & Hindi)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="small">
+                            {% for p in abnormal_params %}
+                                <tr>
+                                    <td class="fw-bold text-primary">{{ p.test_name }}</td>
+                                    <td>
+                                        <span class="badge {% if p.status == 'high' %}bg-danger{% else %}bg-primary{% endif %} fs-6 py-1 px-2">
+                                            {{ p.measured_value }} {{ p.unit }}
+                                        </span>
+                                    </td>
+                                    <td class="text-muted">
+                                        {% if p.reference_min and p.reference_max %}
+                                            {{ p.reference_min }} - {{ p.reference_max }} {{ p.unit }}
+                                        {% else %}
+                                            {{ p.reference_text|default:'Method dependent' }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if p.status == 'high' %}
+                                            <span class="badge bg-danger"><i class="fa-solid fa-arrow-trend-up me-1"></i> Above Range</span>
+                                        {% elif p.status == 'low' %}
+                                            <span class="badge bg-primary"><i class="fa-solid fa-arrow-trend-down me-1"></i> Below Range</span>
+                                        {% endif %}
+                                    </td>
+                                    <td style="max-width: 380px;">
+                                        <div class="mb-1 text-dark">{{ p.explanation_en }}</div>
+                                        <div class="text-secondary fst-italic">{{ p.explanation_hi }}</div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- All Parameters Table -->
+        <div class="card card-medi p-4 mb-4">
+            <h5 class="fw-bold mb-3">Complete Laboratory Parameter Results ({{ parameters.count }})</h5>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light small">
+                        <tr>
+                            <th>Test Name</th>
+                            <th>Value</th>
+                            <th>Unit</th>
+                            <th>Standard Reference</th>
+                            <th>Evaluation</th>
+                            <th>Bilingual Clinical Explanation</th>
+                        </tr>
+                    </thead>
+                    <tbody class="small">
+                        {% for p in parameters %}
+                            <tr>
+                                <td class="fw-bold">{{ p.test_name }}</td>
+                                <td><b>{{ p.measured_value|default:p.raw_value_str }}</b></td>
+                                <td class="text-muted">{{ p.unit }}</td>
+                                <td class="text-muted">
+                                    {% if p.reference_min and p.reference_max %}
+                                        {{ p.reference_min }} - {{ p.reference_max }}
+                                    {% else %}
+                                        {{ p.reference_text|default:'--' }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if p.status == 'normal' %}
+                                        <span class="badge bg-success-subtle text-success"><i class="fa-solid fa-check me-1"></i> Within Range</span>
+                                    {% elif p.status == 'high' %}
+                                        <span class="badge bg-danger"><i class="fa-solid fa-arrow-trend-up me-1"></i> Above Range</span>
+                                    {% elif p.status == 'low' %}
+                                        <span class="badge bg-primary"><i class="fa-solid fa-arrow-trend-down me-1"></i> Below Range</span>
+                                    {% elif p.status == 'context_needed' %}
+                                        <span class="badge bg-warning text-dark">Context Needed</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Unable to Interpret</span>
+                                    {% endif %}
+                                </td>
+                                <td style="max-width: 320px;">
+                                    <div class="text-dark small">{{ p.explanation_en }}</div>
+                                    {% if p.explanation_hi %}
+                                        <div class="text-secondary fst-italic" style="font-size: 0.8rem;">{{ p.explanation_hi }}</div>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Action Buttons Footer -->
+        <div class="d-flex justify-content-between align-items-center">
+            <a href="{% url 'reports:history' %}" class="btn btn-outline-secondary btn-sm">
+                <i class="fa-solid fa-arrow-left me-1"></i> Back to Report History
+            </a>
+            <div class="d-flex gap-2">
+                <a href="{% url 'reports:compare' %}?report1={{ report.id }}" class="btn btn-outline-cyan btn-sm">
+                    <i class="fa-solid fa-code-compare me-1"></i> Compare with Another Report
+                </a>
+                <a href="{% url 'reports:download_pdf' report.pk %}" class="btn btn-cyan btn-sm">
+                    <i class="fa-solid fa-download me-1"></i> Download PDF Summary
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

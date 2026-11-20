@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+
+{% block title %}Compare Medical Reports — MediPredict AI{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    {% with active_tab='compare' %}
+        {% include 'includes/patient_sidebar.html' %}
+    {% endwith %}
+
+    <div class="dashboard-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h4 class="fw-bold mb-1">Comparative Longitudinal Report Analysis</h4>
+                <p class="text-muted small mb-0">Evaluate temporal changes across compatible biomarkers between two confirmed laboratory panels</p>
+            </div>
+            <a href="{% url 'reports:history' %}" class="btn btn-outline-secondary btn-sm">
+                <i class="fa-solid fa-clock-rotate-left me-1"></i> Report History
+            </a>
+        </div>
+
+        <!-- Report Selectors Card -->
+        <div class="card card-medi p-4 mb-4">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-5">
+                    <label class="form-label">Select Baseline / Previous Report</label>
+                    <select name="report1" class="form-select" required>
+                        <option value="">-- Choose Baseline Panel --</option>
+                        {% for r in reports %}
+                            <option value="{{ r.id }}" {% if report1 and report1.id == r.id %}selected{% endif %}>
+                                {{ r.report_date|date:"d M Y" }} — {{ r.title }} ({{ r.get_report_category_display }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-5">
+                    <label class="form-label">Select Follow-Up / Latest Report</label>
+                    <select name="report2" class="form-select" required>
+                        <option value="">-- Choose Comparative Panel --</option>
+                        {% for r in reports %}
+                            <option value="{{ r.id }}" {% if report2 and report2.id == r.id %}selected{% endif %}>
+                                {{ r.report_date|date:"d M Y" }} — {{ r.title }} ({{ r.get_report_category_display }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-cyan w-100 py-2">
+                        <i class="fa-solid fa-code-compare me-1"></i> Compare
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        {% if report1 and report2 %}
+            <!-- Comparison Notice Banner -->
+            <div class="alert alert-secondary py-2 small mb-4">
+                <i class="fa-solid fa-circle-info me-2"></i>
+                <strong>Notice on Biomarker Shifts:</strong> Observed numeric changes reflect longitudinal variance and laboratory methodology. A shift in value does not inherently indicate clinical improvement or deterioration; always review with a clinician.
+            </div>
+
+            <!-- Comparison Chart Card -->
+            <div class="card card-medi p-4 mb-4">
+                <h6 class="fw-bold text-primary mb-3">Biomarker Delta Comparison Visualization</h6>
+                <div style="height: 280px;">
+                    <canvas id="comparisonChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Side-by-Side Data Table -->
+            <div class="card card-medi p-4">
+                <h6 class="fw-bold mb-3">Side-by-Side Biomarker Value Comparison</h6>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light small">
+                            <tr>
+                                <th>Test Name</th>
+                                <th>Baseline ({{ report1.report_date|date:"d M Y" }})</th>
+                                <th>Comparative ({{ report2.report_date|date:"d M Y" }})</th>
+                                <th>Unit</th>
+                                <th>Observed Difference</th>
+                                <th>Percentage Shift</th>
+                            </tr>
+                        </thead>
+                        <tbody class="small">
+                            {% for c in comparison_data %}
+                                <tr>
+                                    <td class="fw-bold text-primary">{{ c.name }}</td>
+                                    <td>
+                                        {% if c.p1_val is not None %}
+                                            <b>{{ c.p1_val }}</b> <span class="badge bg-light text-muted ms-1">{{ c.p1_status }}</span>
+                                        {% else %}
+                                            <span class="text-muted">Not recorded</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if c.p2_val is not None %}
+                                            <b>{{ c.p2_val }}</b> <span class="badge bg-light text-muted ms-1">{{ c.p2_status }}</span>
+                                        {% else %}
+                                            <span class="text-muted">Not recorded</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-muted">{{ c.unit|default:'--' }}</td>
+                                    <td>
+                                        {% if c.delta is not None %}
+                                            {% if c.delta > 0 %}
+                                                <span class="fw-bold text-primary">+{{ c.delta }}</span>
+                                            {% elif c.delta < 0 %}
+                                                <span class="fw-bold text-secondary">{{ c.delta }}</span>
+                                            {% else %}
+                                                <span class="text-muted">0.00 (Unchanged)</span>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="text-muted">--</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if c.pct_change is not None %}
+                                            <span class="badge {% if c.pct_change > 0 %}bg-primary-subtle text-primary{% elif c.pct_change < 0 %}bg-info-subtle text-info-emphasis{% else %}bg-light text-muted{% endif %}">
+                                                {{ c.pct_change }}%
+                                            </span>
+                                        {% else %}
+                                            <span class="text-muted">--</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center py-4 text-muted">No overlapping tests found between the selected reports.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% else %}
+            <div class="card card-medi p-5 text-center text-muted">
+                <i class="fa-solid fa-code-compare fs-1 mb-3 opacity-50"></i>
+                <h5>Select Two Confirmed Reports Above</h5>
+                <p class="small mb-0">Choose a baseline report and a follow-up report to generate side-by-side comparison charts and delta tables.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if comparison_json %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const rawData = JSON.parse('{{ comparison_json|escapejs }}');
+    const ctx = document.getElementById('comparisonChart');
+    if (ctx && rawData.length > 0) {
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: rawData.map(d => d.name),
+                datasets: [
+                    {
+                        label: 'Baseline ({{ report1.report_date|date:"d M Y" }})',
+                        data: rawData.map(d => d.r1),
+                        backgroundColor: '#0f2b48',
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'Follow-Up ({{ report2.report_date|date:"d M Y" }})',
+                        data: rawData.map(d => d.r2),
+                        backgroundColor: '#00a8cc',
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endif %}
+{% endblock %}

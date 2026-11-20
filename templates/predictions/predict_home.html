@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}AI Disease Risk Assessment Center — MediPredict AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="card card-medi p-4 mb-4 border-0" style="background: linear-gradient(135deg, #0f2b48, #0077b6); color: white;">
+        <div class="row align-items-center g-3">
+            <div class="col-lg-8">
+                <span class="badge bg-white text-primary mb-2 px-3 py-1 fw-bold rounded-pill">Predictive Diagnostic AI</span>
+                <h3 class="fw-bold text-white mb-2">Disease Risk Assessment Modules</h3>
+                <p class="text-light opacity-90 small mb-0">
+                    Validated probabilistic algorithms for early non-invasive screening. Review your risk tiers, driving clinical factors, and actionable lifestyle correlations.
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a href="{% url 'predictions:history' %}" class="btn btn-outline-light btn-sm">
+                    <i class="fa-solid fa-clock-rotate-left me-1"></i> My Assessment History
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mandatory Medical Disclaimer Banner -->
+    <div class="medical-disclaimer-box">
+        <div class="d-flex align-items-center gap-2 fw-bold mb-1">
+            <i class="fa-solid fa-triangle-exclamation"></i> Mandatory Clinical Notice
+        </div>
+        <div>
+            AI risk estimates are probabilistic screening calculations based on epidemiologically validated statistical patterns.
+            <strong>They are NOT medical diagnoses and do NOT prescribe medical therapies.</strong> If you experience symptoms or are concerned about your health, consult a licensed physician immediately.
+        </div>
+    </div>
+
+    <!-- Disease Cards Grid -->
+    <div class="row g-4 mb-4">
+        <!-- Diabetes -->
+        <div class="col-md-4">
+            <div class="card card-medi card-medi-interactive h-100 p-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="icon-badge badge-amber"><i class="fa-solid fa-droplet"></i></div>
+                    <span class="badge bg-light text-muted">PIMA Model</span>
+                </div>
+                <h5 class="fw-bold mb-2">Type 2 Diabetes Mellitus</h5>
+                <p class="small text-muted mb-3">
+                    Screen for impaired fasting glucose and insulin resistance. Examines glucose levels, BMI, pedigree function, age, and blood pressure.
+                </p>
+                <div class="p-2 bg-light rounded small mb-3">
+                    <strong>Primary Biomarkers:</strong> Fasting Glucose, BMI, Insulin, Age, Blood Pressure
+                </div>
+                <div class="mt-auto">
+                    <a href="{% url 'predictions:diabetes' %}" class="btn btn-cyan w-100">
+                        Start Diabetes Screening <i class="fa-solid fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Heart -->
+        <div class="col-md-4">
+            <div class="card card-medi card-medi-interactive h-100 p-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="icon-badge badge-red"><i class="fa-solid fa-heart-pulse"></i></div>
+                    <span class="badge bg-light text-muted">Cleveland Pipeline</span>
+                </div>
+                <h5 class="fw-bold mb-2">Cardiovascular & Heart Disease</h5>
+                <p class="small text-muted mb-3">
+                    Assess risk of coronary artery disease and myocardial ischemia using resting blood pressure, cholesterol, max heart rate, and ST depression.
+                </p>
+                <div class="p-2 bg-light rounded small mb-3">
+                    <strong>Primary Biomarkers:</strong> Chest Pain Type, ST Depression, Resting BP, Cholesterol
+                </div>
+                <div class="mt-auto">
+                    <a href="{% url 'predictions:heart' %}" class="btn btn-navy w-100">
+                        Start Cardiac Screening <i class="fa-solid fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kidney -->
+        <div class="col-md-4">
+            <div class="card card-medi card-medi-interactive h-100 p-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="icon-badge badge-cyan"><i class="fa-solid fa-dna"></i></div>
+                    <span class="badge bg-light text-muted">KDIGO Filtration</span>
+                </div>
+                <h5 class="fw-bold mb-2">Chronic Kidney Disease (CKD)</h5>
+                <p class="small text-muted mb-3">
+                    Evaluate renal filtration competence and proteinuria through serum creatinine, blood urea nitrogen, albumin, specific gravity, and hemoglobin.
+                </p>
+                <div class="p-2 bg-light rounded small mb-3">
+                    <strong>Primary Biomarkers:</strong> Serum Creatinine, Albumin, Blood Urea, Hemoglobin
+                </div>
+                <div class="mt-auto">
+                    <a href="{% url 'predictions:kidney' %}" class="btn btn-outline-cyan w-100">
+                        Start Renal Screening <i class="fa-solid fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

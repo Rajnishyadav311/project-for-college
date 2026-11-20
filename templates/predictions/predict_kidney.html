@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}Kidney Disease Risk Assessment — MediPredict AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <!-- Header -->
+            <div class="card card-medi p-4 mb-4 border-0" style="background: linear-gradient(135deg, #00a8cc, #0077b6); color: white;">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="icon-badge bg-white text-info fs-3" style="width: 54px; height: 54px;">
+                        <i class="fa-solid fa-dna"></i>
+                    </div>
+                    <div>
+                        <h4 class="fw-bold mb-1">Chronic Kidney Disease (CKD) Risk Assessment</h4>
+                        <p class="small text-light opacity-90 mb-0">
+                            KDIGO Criteria & Renal Function Evaluation Pipeline
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Disclaimer -->
+            <div class="medical-disclaimer-box mb-4">
+                <strong><i class="fa-solid fa-shield-halved me-1"></i> Medical Notice:</strong>
+                Renal risk estimates are non-invasive screening calculations based on laboratory biomarkers. They do not constitute formal staging of chronic kidney disease or replace an eGFR clinical report from a nephrologist.
+            </div>
+
+            <!-- Form -->
+            <div class="card card-medi p-4 p-md-5">
+                <form method="post">
+                    {% csrf_token %}
+                    <h5 class="fw-bold text-primary mb-3">Input Renal Parameters</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">{{ form.sc.label }}</label>
+                            {{ form.sc }}
+                            <small class="text-muted" style="font-size: 0.78rem;">{{ form.sc.help_text }}</small>
+                            {% if form.sc.errors %}<div class="text-danger small">{{ form.sc.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">{{ form.bu.label }}</label>
+                            {{ form.bu }}
+                            <small class="text-muted" style="font-size: 0.78rem;">{{ form.bu.help_text }}</small>
+                            {% if form.bu.errors %}<div class="text-danger small">{{ form.bu.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">{{ form.al.label }}</label>
+                            {{ form.al }}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">{{ form.hemo.label }}</label>
+                            {{ form.hemo }}
+                            <small class="text-muted" style="font-size: 0.78rem;">{{ form.hemo.help_text }}</small>
+                            {% if form.hemo.errors %}<div class="text-danger small">{{ form.hemo.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">{{ form.bp.label }}</label>
+                            {{ form.bp }}
+                            <small class="text-muted" style="font-size: 0.78rem;">{{ form.bp.help_text }}</small>
+                            {% if form.bp.errors %}<div class="text-danger small">{{ form.bp.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">{{ form.sg.label }}</label>
+                            {{ form.sg }}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">{{ form.age.label }}</label>
+                            {{ form.age }}
+                            {% if form.age.errors %}<div class="text-danger small">{{ form.age.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">{{ form.sod.label }}</label>
+                            {{ form.sod }}
+                            <small class="text-muted" style="font-size: 0.78rem;">{{ form.sod.help_text }}</small>
+                            {% if form.sod.errors %}<div class="text-danger small">{{ form.sod.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">{{ form.pot.label }}</label>
+                            {{ form.pot }}
+                            <small class="text-muted" style="font-size: 0.78rem;">{{ form.pot.help_text }}</small>
+                            {% if form.pot.errors %}<div class="text-danger small">{{ form.pot.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-top d-flex justify-content-between align-items-center">
+                        <a href="{% url 'predictions:home' %}" class="btn btn-outline-secondary">Back to Modules</a>
+                        <button type="submit" class="btn btn-cyan px-4 py-2">
+                            <i class="fa-solid fa-calculator me-1"></i> Compute Renal Risk
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

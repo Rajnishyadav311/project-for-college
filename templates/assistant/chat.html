@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+
+{% block title %}AI Health Assistant — MediPredict AI{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    {% with active_tab='assistant' %}
+        {% include 'includes/patient_sidebar.html' %}
+    {% endwith %}
+
+    <div class="dashboard-content">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <!-- Chat Window Container -->
+                <div class="card card-medi shadow-md overflow-hidden border-0">
+                    <!-- Chat Header -->
+                    <div class="p-3 bg-white border-bottom d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="icon-badge badge-cyan rounded-circle" style="width: 44px; height: 44px; font-size: 1.25rem;">
+                                <i class="fa-solid fa-robot"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-0">MediPredict AI Health Assistant</h6>
+                                <small class="text-success d-flex align-items-center gap-1">
+                                    <span class="rounded-circle bg-success" style="width: 8px; height: 8px;"></span> Bilingual Support (English & हिंदी)
+                                </small>
+                            </div>
+                        </div>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="clearChat()">
+                            <i class="fa-solid fa-arrows-rotate me-1"></i> Clear Chat
+                        </button>
+                    </div>
+
+                    <!-- Medical Notice Top Bar -->
+                    <div class="bg-warning-subtle text-warning-emphasis px-3 py-2 small border-bottom d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <span>Educational assistant only. Not a substitute for professional medical diagnosis or prescription.</span>
+                    </div>
+
+                    <!-- Chat Message Area -->
+                    <div class="chat-window" id="chatContainer">
+                        <!-- Welcome Bubble -->
+                        <div class="chat-bubble chat-assistant">
+                            <div class="fw-bold text-primary mb-1"><i class="fa-solid fa-robot me-1"></i> MediPredict Assistant:</div>
+                            Hello {{ user.first_name|default:user.username }}! I am your AI health education companion.
+                            Ask me about laboratory markers, medical terms, or say <strong>"Explain my latest report"</strong> to review your confirmed tests.
+                            <br><small class="text-muted mt-1 d-block">आप हिंदी में भी पूछ सकते हैं (उदा. "HbA1c क्या है?", "बीपी कंट्रोल करने के उपाय")।</small>
+                        </div>
+
+                        {% for msg in chat_history %}
+                            {% if msg.role == 'user' %}
+                                <div class="chat-bubble chat-user">
+                                    {{ msg.content|linebreaksbr }}
+                                    <div class="text-end" style="font-size: 0.7rem; opacity: 0.85;">{{ msg.created_at|date:"H:i" }}</div>
+                                </div>
+                            {% else %}
+                                <div class="chat-bubble chat-assistant">
+                                    <div class="fw-bold text-primary mb-1"><i class="fa-solid fa-robot me-1"></i> MediPredict Assistant:</div>
+                                    {{ msg.content|linebreaksbr }}
+                                    <div class="text-end text-muted" style="font-size: 0.7rem;">{{ msg.created_at|date:"H:i" }}</div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+
+                    <!-- Quick Suggestions Bar -->
+                    <div class="p-2 bg-light border-top d-flex flex-wrap gap-2">
+                        <span class="small text-muted align-self-center me-1">Suggestions:</span>
+                        <button type="button" class="btn btn-sm btn-outline-primary rounded-pill py-0 px-2" onclick="sendQuickPrompt('Explain my latest report')">
+                            Explain my latest report
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-info rounded-pill py-0 px-2 text-dark" onclick="sendQuickPrompt('What does high creatinine mean?')">
+                            High Creatinine?
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-warning rounded-pill py-0 px-2 text-dark" onclick="sendQuickPrompt('What is HbA1c?')">
+                            What is HbA1c?
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-danger rounded-pill py-0 px-2" onclick="sendQuickPrompt('Normal blood pressure ranges')">
+                            Normal BP ranges
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-success rounded-pill py-0 px-2" onclick="sendQuickPrompt('बीपी कंट्रोल करने के आसान उपाय क्या हैं?')">
+                            बीपी कंट्रोल (हिंदी)
+                        </button>
+                    </div>
+
+                    <!-- Input Box -->
+                    <div class="p-3 bg-white border-top">
+                        <form id="chatForm" onsubmit="handleChatSubmit(event)">
+                            {% csrf_token %}
+                            <div class="input-group">
+                                <input type="text" id="userInput" class="form-control" placeholder="Ask a health question in English or हिंदी..." autocomplete="off">
+                                <button type="submit" class="btn btn-cyan px-4" id="sendBtn">
+                                    <i class="fa-solid fa-paper-plane me-1"></i> Send
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const chatContainer = document.getElementById('chatContainer');
+const userInput = document.getElementById('userInput');
+const sendBtn = document.getElementById('sendBtn');
+
+function scrollToBottom() {
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+scrollToBottom();
+
+function sendQuickPrompt(text) {
+    userInput.value = text;
+    handleChatSubmit(new Event('submit'));
+}
+
+async function handleChatSubmit(e) {
+    e.preventDefault();
+    const message = userInput.value.trim();
+    if (!message) return;
+
+    // Append User Message to UI
+    const userBubble = document.createElement('div');
+    userBubble.className = 'chat-bubble chat-user';
+    userBubble.innerHTML = `<div>${escapeHtml(message)}</div><div class="text-end" style="font-size: 0.7rem; opacity: 0.85;">Now</div>`;
+    chatContainer.appendChild(userBubble);
+    userInput.value = '';
+    scrollToBottom();
+
+    // Append Loading Indicator
+    const loadingBubble = document.createElement('div');
+    loadingBubble.className = 'chat-bubble chat-assistant';
+    loadingBubble.id = 'typingIndicator';
+    loadingBubble.innerHTML = `<span class="spinner-border spinner-border-sm text-primary me-2"></span> Analyzing health question...`;
+    chatContainer.appendChild(loadingBubble);
+    scrollToBottom();
+
+    sendBtn.disabled = true;
+
+    try {
+        const response = await fetch("{% url 'assistant:api_send' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({ message: message })
+        });
+        const data = await response.json();
+        loadingBubble.remove();
+
+        if (data.reply) {
+            const assistantBubble = document.createElement('div');
+            assistantBubble.className = 'chat-bubble chat-assistant';
+            assistantBubble.innerHTML = `
+                <div class="fw-bold text-primary mb-1"><i class="fa-solid fa-robot me-1"></i> MediPredict Assistant:</div>
+                <div>${formatReply(data.reply)}</div>
+                <div class="text-end text-muted" style="font-size: 0.7rem;">${data.timestamp}</div>
+            `;
+            chatContainer.appendChild(assistantBubble);
+        } else {
+            const errBubble = document.createElement('div');
+            errBubble.className = 'chat-bubble chat-assistant text-danger';
+            errBubble.innerText = "Error: Could not retrieve response. Please try again.";
+            chatContainer.appendChild(errBubble);
+        }
+    } catch (err) {
+        loadingBubble.remove();
+        console.error(err);
+    } finally {
+        sendBtn.disabled = false;
+        scrollToBottom();
+    }
+}
+
+async function clearChat() {
+    if (!confirm("Clear this conversation history?")) return;
+    try {
+        await fetch("{% url 'assistant:api_clear' %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        });
+        location.reload();
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+function escapeHtml(text) {
+    return text.replace(/[&<>"']/g, function(m) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+    });
+}
+
+function formatReply(text) {
+    // Convert markdown asterisks to HTML tags
+    let formatted = escapeHtml(text)
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/\n/g, '<br>');
+    return formatted;
+}
+</script>
+{% endblock %}

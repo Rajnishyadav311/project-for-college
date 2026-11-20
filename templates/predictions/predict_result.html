@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block title %}Prediction Result — MediPredict AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- 1. Result Header Card with Risk Gauge -->
+            <div class="card card-medi p-4 p-md-5 mb-4 text-center shadow-lg border-0"
+                 style="background: linear-gradient(135deg, #ffffff, #f8fafc); border-top: 6px solid {% if record.risk_level == 'Low' %}#10b981{% elif record.risk_level == 'Moderate' %}#f59e0b{% else %}#ef4444{% endif %} !important;">
+                
+                <span class="badge bg-light text-muted px-3 py-1 mb-2 font-monospace">{{ record.model_version }}</span>
+                <h3 class="fw-bold mb-1">{{ record.get_disease_type_display }}</h3>
+                <p class="text-muted small mb-4">Patient: {{ record.user.get_full_name|default:record.user.username }} · Evaluated on {{ record.created_at|date:"d M Y, H:i" }}</p>
+
+                <!-- Risk Score Visual -->
+                <div class="d-inline-flex flex-column align-items-center justify-content-center p-4 rounded-circle shadow-sm mb-3"
+                     style="width: 170px; height: 170px; background: {% if record.risk_level == 'Low' %}#ecfdf5{% elif record.risk_level == 'Moderate' %}#fffbeb{% else %}#fef2f2{% endif %}; border: 4px solid {% if record.risk_level == 'Low' %}#10b981{% elif record.risk_level == 'Moderate' %}#f59e0b{% else %}#ef4444{% endif %};">
+                    <span class="display-5 fw-extrabold" style="color: {% if record.risk_level == 'Low' %}#059669{% elif record.risk_level == 'Moderate' %}#d97706{% else %}#dc2626{% endif %};">
+                        {{ record.risk_score }}%
+                    </span>
+                    <span class="small fw-bold text-muted text-uppercase tracking-wider">Estimated Risk</span>
+                </div>
+
+                <div class="mb-3">
+                    <span class="badge fs-6 py-2 px-4 rounded-pill {% if record.risk_level == 'Low' %}bg-success{% elif record.risk_level == 'Moderate' %}bg-warning text-dark{% else %}bg-danger{% endif %}">
+                        {{ record.risk_label }}
+                    </span>
+                </div>
+
+                <p class="text-secondary small mx-auto" style="max-width: 650px;">
+                    {% if record.risk_level == 'Low' %}
+                        Your recorded clinical biomarkers align favorably with lower epidemiological risk patterns. Continue balanced nutrition and regular physical activity.
+                    {% elif record.risk_level == 'Moderate' %}
+                        One or more clinical biomarkers show borderline deviations that moderately elevate your statistical vulnerability. Lifestyle modifications and routine screening are advisable.
+                    {% else %}
+                        Multiple key biomarkers fall in higher-risk intervals. We strongly advise sharing this summary with a qualified healthcare provider for a thorough clinical evaluation.
+                    {% endif %}
+                </p>
+
+                <div class="d-flex justify-content-center gap-3 mt-3">
+                    <a href="{% url 'appointments:find_doctors' %}" class="btn btn-cyan btn-sm px-4">
+                        <i class="fa-solid fa-user-doctor me-1"></i> Consult a Specialist
+                    </a>
+                    <a href="{% url 'predictions:home' %}" class="btn btn-outline-secondary btn-sm px-4">
+                        Run Another Screening
+                    </a>
+                </div>
+            </div>
+
+            <!-- 2. Mandatory Ethical Disclaimer -->
+            <div class="medical-disclaimer-box mb-4">
+                <div class="fw-bold mb-1"><i class="fa-solid fa-triangle-exclamation me-1"></i> STRICT CLINICAL SAFETY NOTICE:</div>
+                <div>
+                    This risk estimate is produced by an artificial intelligence model trained on population health statistics.
+                    <strong>It is NOT a medical diagnosis and cannot confirm or rule out disease.</strong>
+                    Never start, alter, or discontinue prescribed treatments or medications based on this estimate. Always consult a licensed physician.
+                </div>
+            </div>
+
+            <!-- 3. Top Driving Biomarkers (SHAP / Feature Attribution Breakdown) -->
+            <div class="card card-medi p-4 mb-4">
+                <h5 class="fw-bold text-primary mb-3">
+                    <i class="fa-solid fa-brain-circuit me-2"></i> Feature Attribution & Biomarker Contribution Breakdown
+                </h5>
+                <p class="small text-muted mb-4">
+                    The machine learning model evaluates each feature against standardized healthy baselines to compute local additive impact scores.
+                </p>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light small">
+                            <tr>
+                                <th>Clinical Feature</th>
+                                <th>Your Value</th>
+                                <th>Healthy Baseline</th>
+                                <th>Impact on Risk</th>
+                                <th>Direction</th>
+                                <th>Context</th>
+                            </tr>
+                        </thead>
+                        <tbody class="small">
+                            {% for c in record.feature_contributions %}
+                                <tr>
+                                    <td class="fw-bold text-primary">{{ c.label }}</td>
+                                    <td><span class="badge bg-light text-dark fw-bold">{{ c.value }} {{ c.unit }}</span></td>
+                                    <td class="text-muted">{{ c.healthy_baseline }} {{ c.unit }}</td>
+                                    <td>
+                                        <div class="progress" style="height: 6px; width: 80px;">
+                                            <div class="progress-bar {% if c.impact_type == 'Increases Risk' %}bg-danger{% elif c.impact_type == 'Lowers Risk' %}bg-success{% else %}bg-secondary{% endif %}"
+                                                 style="width: {% if c.impact_score > 0 %}{{ c.importance_pct }}%{% else %}40%{% endif %};"></div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if c.impact_type == 'Increases Risk' %}
+                                            <span class="badge bg-danger-subtle text-danger"><i class="fa-solid fa-arrow-trend-up me-1"></i> Increases Risk</span>
+                                        {% elif c.impact_type == 'Lowers Risk' %}
+                                            <span class="badge bg-success-subtle text-success"><i class="fa-solid fa-arrow-trend-down me-1"></i> Lowers Risk</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary-subtle text-secondary">Neutral</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-muted" style="max-width: 250px;">{{ c.clinical_context }}</td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted py-3">Feature details saved in model record.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 4. Next Recommended Actions -->
+            <div class="card card-medi p-4">
+                <h5 class="fw-bold mb-3">Recommended Next Steps</h5>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="p-3 border rounded-3 bg-light h-100">
+                            <h6 class="fw-bold text-primary mb-1"><i class="fa-solid fa-file-medical me-1"></i> Upload Diagnostics</h6>
+                            <p class="small text-muted mb-0">Cross-reference these predictions with confirmed laboratory blood chemistry panels.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 border rounded-3 bg-light h-100">
+                            <h6 class="fw-bold text-primary mb-1"><i class="fa-solid fa-heart-pulse me-1"></i> Log Vitals Regularly</h6>
+                            <p class="small text-muted mb-0">Record BP and blood glucose in the Health Tracker to monitor weekly trends.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 border rounded-3 bg-light h-100">
+                            <h6 class="fw-bold text-primary mb-1"><i class="fa-solid fa-user-doctor me-1"></i> Clinical Evaluation</h6>
+                            <p class="small text-muted mb-0">Schedule an appointment with a verified specialist in our directory.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

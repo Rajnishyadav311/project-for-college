@@ -1,0 +1,54 @@
+<!-- Reusable Patient Dashboard Sidebar (12 Items) -->
+<div class="dashboard-sidebar">
+    <div class="px-3 mb-3">
+        <div class="d-flex align-items-center gap-2 p-2 rounded-3 bg-light">
+            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold" style="width: 38px; height: 38px;">
+                {{ user.first_name|first|default:user.username|first|upper }}
+            </div>
+            <div class="overflow-hidden">
+                <div class="fw-bold text-truncate small">{{ user.get_full_name|default:user.username }}</div>
+                <div class="text-muted" style="font-size: 0.75rem;">Patient Portal</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="sidebar-heading">Navigation</div>
+    <a href="{% url 'core:patient_dashboard' %}" class="sidebar-nav-item {% if active_tab == 'dashboard' %}active{% endif %}">
+        <i class="fa-solid fa-gauge-high"></i> <span>1. Dashboard</span>
+    </a>
+    <a href="{% url 'predictions:home' %}" class="sidebar-nav-item {% if active_tab == 'predictions' %}active{% endif %}">
+        <i class="fa-solid fa-chart-line"></i> <span>2. Disease Prediction</span>
+    </a>
+    <a href="{% url 'reports:upload' %}" class="sidebar-nav-item {% if active_tab == 'analyzer' %}active{% endif %}">
+        <i class="fa-solid fa-file-medical"></i> <span>3. Report Analyzer</span>
+    </a>
+    <a href="{% url 'reports:history' %}" class="sidebar-nav-item {% if active_tab == 'reports' %}active{% endif %}">
+        <i class="fa-solid fa-clock-rotate-left"></i> <span>4. Report History</span>
+    </a>
+    <a href="{% url 'reports:compare' %}" class="sidebar-nav-item {% if active_tab == 'compare' %}active{% endif %}">
+        <i class="fa-solid fa-code-compare"></i> <span>5. Compare Reports</span>
+    </a>
+    <a href="{% url 'tracker:dashboard' %}" class="sidebar-nav-item {% if active_tab == 'tracker' %}active{% endif %}">
+        <i class="fa-solid fa-heart-pulse"></i> <span>6. Health Tracker</span>
+    </a>
+    <a href="{% url 'assistant:chat' %}" class="sidebar-nav-item {% if active_tab == 'assistant' %}active{% endif %}">
+        <i class="fa-solid fa-robot text-info"></i> <span>7. AI Assistant</span>
+    </a>
+    <a href="{% url 'appointments:find_doctors' %}" class="sidebar-nav-item {% if active_tab == 'doctors' %}active{% endif %}">
+        <i class="fa-solid fa-user-doctor"></i> <span>8. Find Doctors</span>
+    </a>
+    <a href="{% url 'appointments:my_appointments' %}" class="sidebar-nav-item {% if active_tab == 'appointments' %}active{% endif %}">
+        <i class="fa-solid fa-calendar-check"></i> <span>9. My Appointments</span>
+    </a>
+    <a href="{% url 'appointments:find_doctors' %}" class="sidebar-nav-item {% if active_tab == 'reviews' %}active{% endif %}">
+        <i class="fa-solid fa-star"></i> <span>10. My Reviews</span>
+    </a>
+
+    <div class="sidebar-heading mt-3">Account</div>
+    <a href="{% url 'core:profile' %}" class="sidebar-nav-item {% if active_tab == 'profile' %}active{% endif %}">
+        <i class="fa-solid fa-id-card"></i> <span>11. Profile</span>
+    </a>
+    <a href="{% url 'core:logout' %}" class="sidebar-nav-item text-danger">
+        <i class="fa-solid fa-arrow-right-from-bracket text-danger"></i> <span>12. Logout</span>
+    </a>
+</div>

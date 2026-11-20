@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}Doctor & Practitioner Registration — MediPredict AI{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card card-medi p-4 p-md-5 shadow-lg">
+                <div class="text-center mb-4">
+                    <div class="icon-badge badge-navy mx-auto mb-3" style="width: 56px; height: 56px; font-size: 1.5rem;">
+                        <i class="fa-solid fa-user-doctor"></i>
+                    </div>
+                    <h3 class="fw-bold mb-1">Doctor & Specialist Onboarding</h3>
+                    <p class="text-muted small">Join our network of verified physicians, receive patient appointment requests, and review clinical summaries</p>
+                </div>
+
+                <form method="post" action="{% url 'core:register_doctor' %}">
+                    {% csrf_token %}
+                    <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">1. Account Credentials</h6>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label">Username *</label>
+                            {{ form.username }}
+                            {% if form.username.errors %}<div class="text-danger small">{{ form.username.errors }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">First Name *</label>
+                            {{ form.first_name }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Last Name *</label>
+                            {{ form.last_name }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Professional Email *</label>
+                            {{ form.email }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Contact Phone *</label>
+                            {{ form.phone }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Password *</label>
+                            {{ form.password1 }}
+                            {% if form.password1.errors %}<div class="text-danger small">{{ form.password1.errors }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Confirm Password *</label>
+                            {{ form.password2 }}
+                            {% if form.password2.errors %}<div class="text-danger small">{{ form.password2.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">2. Medical Credentials & Practice Information</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Medical Specialization *</label>
+                            {{ form.specialization }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Medical Registration License No. *</label>
+                            {{ form.license_number }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Qualifications *</label>
+                            {{ form.qualification }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Years of Experience *</label>
+                            {{ form.experience_years }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Clinic / Hospital Name *</label>
+                            {{ form.clinic_name }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Practice City *</label>
+                            {{ form.city }}
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Clinic Street Address *</label>
+                            {{ form.clinic_address }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Consultation Fee (INR) *</label>
+                            {{ form.consultation_fee }}
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-navy w-100 py-2">
+                            <i class="fa-solid fa-stethoscope me-2"></i> Register as Healthcare Professional
+                        </button>
+                    </div>
+                </form>
+
+                <div class="text-center mt-3 small text-muted">
+                    Already a registered practitioner? <a href="{% url 'core:login' %}" class="fw-semibold text-primary">Sign In here</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,241 @@
+{% extends 'base.html' %}
+
+{% block title %}Personal Health Tracker — MediPredict AI{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    {% with active_tab='tracker' %}
+        {% include 'includes/patient_sidebar.html' %}
+    {% endwith %}
+
+    <div class="dashboard-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h4 class="fw-bold mb-1">Personal Health Vitals Tracker</h4>
+                <p class="text-muted small mb-0">Record, visualize, and track Body Mass Index, Blood Pressure, Glucose, and Heart Rate</p>
+            </div>
+            <a href="{% url 'tracker:add' %}" class="btn btn-cyan btn-sm">
+                <i class="fa-solid fa-plus me-1"></i> Log New Reading
+            </a>
+        </div>
+
+        <!-- Latest Vitals Snapshot Cards -->
+        {% if latest %}
+            <div class="row g-3 mb-4">
+                <div class="col-md-3 col-6">
+                    <div class="stat-card">
+                        <div>
+                            <div class="stat-val text-primary">{{ latest.bmi }}</div>
+                            <div class="stat-label">BMI <span class="badge bg-primary-subtle text-primary">{{ latest.bmi_category }}</span></div>
+                        </div>
+                        <div class="icon-badge badge-cyan"><i class="fa-solid fa-weight-scale"></i></div>
+                    </div>
+                </div>
+
+                <div class="col-md-3 col-6">
+                    <div class="stat-card">
+                        <div>
+                            <div class="stat-val text-danger">
+                                {% if latest.systolic_bp %}{{ latest.systolic_bp }}/{{ latest.diastolic_bp }}{% else %}--{% endif %}
+                            </div>
+                            <div class="stat-label">BP (mm Hg)</div>
+                        </div>
+                        <div class="icon-badge badge-red"><i class="fa-solid fa-heart-pulse"></i></div>
+                    </div>
+                </div>
+
+                <div class="col-md-3 col-6">
+                    <div class="stat-card">
+                        <div>
+                            <div class="stat-val text-warning">
+                                {% if latest.blood_glucose %}{{ latest.blood_glucose }}{% else %}--{% endif %}
+                            </div>
+                            <div class="stat-label">Blood Glucose (mg/dL)</div>
+                        </div>
+                        <div class="icon-badge badge-amber"><i class="fa-solid fa-droplet"></i></div>
+                    </div>
+                </div>
+
+                <div class="col-md-3 col-6">
+                    <div class="stat-card">
+                        <div>
+                            <div class="stat-val text-info">
+                                {% if latest.heart_rate %}{{ latest.heart_rate }}{% else %}--{% endif %}
+                            </div>
+                            <div class="stat-label">Heart Rate (bpm)</div>
+                        </div>
+                        <div class="icon-badge badge-navy"><i class="fa-solid fa-gauge"></i></div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Interactive Trend Charts Grid -->
+        <div class="row g-4 mb-4">
+            <!-- Blood Pressure & Heart Rate Chart -->
+            <div class="col-lg-6">
+                <div class="card card-medi p-4 h-100">
+                    <h6 class="fw-bold text-primary mb-3"><i class="fa-solid fa-heart-pulse text-danger me-1"></i> Blood Pressure & Heart Rate Trends</h6>
+                    <div style="height: 250px;">
+                        <canvas id="bpChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Glucose & Weight Trend Chart -->
+            <div class="col-lg-6">
+                <div class="card card-medi p-4 h-100">
+                    <h6 class="fw-bold text-primary mb-3"><i class="fa-solid fa-chart-line text-info me-1"></i> Weight & Fasting Blood Sugar Trends</h6>
+                    <div style="height: 250px;">
+                        <canvas id="glucoseWeightChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Table -->
+        <div class="card card-medi p-4">
+            <h5 class="fw-bold mb-3">Health Vitals Log History</h5>
+            {% if measurements %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light small">
+                            <tr>
+                                <th>Date</th>
+                                <th>Weight</th>
+                                <th>Height</th>
+                                <th>BMI & Category</th>
+                                <th>Blood Pressure</th>
+                                <th>Blood Glucose</th>
+                                <th>Heart Rate</th>
+                                <th>Notes</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="small">
+                            {% for m in measurements %}
+                                <tr>
+                                    <td><b>{{ m.recorded_at|date:"d M Y" }}</b></td>
+                                    <td>{{ m.weight_kg }} kg</td>
+                                    <td>{{ m.height_cm }} cm</td>
+                                    <td>
+                                        <b>{{ m.bmi }}</b>
+                                        <span class="badge {% if m.bmi_category == 'Normal' %}bg-success{% elif m.bmi_category == 'Overweight' %}bg-warning text-dark{% elif m.bmi_category == 'Obese' %}bg-danger{% else %}bg-info text-dark{% endif %} ms-1">
+                                            {{ m.bmi_category }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if m.systolic_bp %}{{ m.systolic_bp }} / {{ m.diastolic_bp }} mm Hg{% else %}--{% endif %}
+                                    </td>
+                                    <td>
+                                        {% if m.blood_glucose %}{{ m.blood_glucose }} mg/dL{% else %}--{% endif %}
+                                    </td>
+                                    <td>
+                                        {% if m.heart_rate %}{{ m.heart_rate }} bpm{% else %}--{% endif %}
+                                    </td>
+                                    <td class="text-muted">{{ m.notes|default:'--' }}</td>
+                                    <td class="text-end">
+                                        <a href="{% url 'tracker:edit' m.pk %}" class="btn btn-sm btn-outline-secondary py-1 px-2" title="Edit">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </a>
+                                        <a href="{% url 'tracker:delete' m.pk %}" class="btn btn-sm btn-outline-danger py-1 px-2 ms-1" title="Delete">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5 text-muted">
+                    <i class="fa-solid fa-heart-pulse fs-1 mb-3 opacity-50"></i>
+                    <h5>No Health Measurements Recorded</h5>
+                    <p class="small mb-3">Start monitoring your blood pressure, BMI, glucose, and heart rate trends over time.</p>
+                    <a href="{% url 'tracker:add' %}" class="btn btn-cyan">Log First Reading</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const data = JSON.parse('{{ chart_data_json|escapejs }}');
+    if (!data.dates || data.dates.length === 0) return;
+
+    // 1. BP & Heart Rate Chart
+    const bpCtx = document.getElementById('bpChart');
+    if (bpCtx) {
+        new Chart(bpCtx, {
+            type: 'line',
+            data: {
+                labels: data.dates,
+                datasets: [
+                    {
+                        label: 'Systolic BP (mm Hg)',
+                        data: data.systolics,
+                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Diastolic BP (mm Hg)',
+                        data: data.diastolics,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Heart Rate (bpm)',
+                        data: data.heart_rates,
+                        borderColor: '#10b981',
+                        borderDash: [5, 5],
+                        tension: 0.3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { y: { beginAtZero: false } }
+            }
+        });
+    }
+
+    // 2. Glucose & Weight Chart
+    const gwCtx = document.getElementById('glucoseWeightChart');
+    if (gwCtx) {
+        new Chart(gwCtx, {
+            type: 'line',
+            data: {
+                labels: data.dates,
+                datasets: [
+                    {
+                        label: 'Blood Glucose (mg/dL)',
+                        data: data.glucoses,
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Weight (kg)',
+                        data: data.weights,
+                        borderColor: '#0f2b48',
+                        backgroundColor: 'rgba(15, 43, 72, 0.1)',
+                        tension: 0.3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { y: { beginAtZero: false } }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

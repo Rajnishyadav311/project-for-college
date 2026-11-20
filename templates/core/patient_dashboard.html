@@ -1,0 +1,304 @@
+{% extends 'base.html' %}
+
+{% block title %}Patient Health Dashboard — MediPredict AI{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Sidebar Navigation (12 Items) -->
+    {% with active_tab='dashboard' %}
+        {% include 'includes/patient_sidebar.html' %}
+    {% endwith %}
+
+    <!-- Dashboard Main Area -->
+    <div class="dashboard-content">
+        <!-- 1. Welcome Message & Banner -->
+        <div class="card card-medi p-4 mb-4 border-0 shadow-sm" style="background: linear-gradient(135deg, #0f2b48, #0077b6); color: white;">
+            <div class="row align-items-center g-3">
+                <div class="col-lg-8">
+                    <span class="badge bg-white text-primary mb-2 px-3 py-1 fw-bold rounded-pill">Patient Portal</span>
+                    <h3 class="fw-bold text-white mb-1">Welcome back, {{ user.get_full_name|default:user.username }}!</h3>
+                    <p class="text-light mb-0 small opacity-90">
+                        Here is your holistic health overview. Review your risk models, diagnostic reports, and scheduled appointments.
+                    </p>
+                </div>
+                <div class="col-lg-4 text-lg-end">
+                    <a href="{% url 'reports:upload' %}" class="btn btn-cyan btn-sm px-3 py-2">
+                        <i class="fa-solid fa-cloud-arrow-up me-1"></i> Upload Report
+                    </a>
+                    <a href="{% url 'tracker:add' %}" class="btn btn-outline-light btn-sm px-3 py-2 ms-2">
+                        <i class="fa-solid fa-plus me-1"></i> Log Vitals
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Metric / Summary Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card">
+                    <div>
+                        <div class="stat-val">{{ total_reports }}</div>
+                        <div class="stat-label">Total Lab Reports</div>
+                    </div>
+                    <div class="icon-badge badge-cyan">
+                        <i class="fa-solid fa-file-medical"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card">
+                    <div>
+                        <div class="stat-val">{{ total_predictions }}</div>
+                        <div class="stat-label">AI Risk Assessments</div>
+                    </div>
+                    <div class="icon-badge badge-amber">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card">
+                    <div>
+                        <div class="stat-val">{{ total_appointments }}</div>
+                        <div class="stat-label">Consultations</div>
+                    </div>
+                    <div class="icon-badge badge-green">
+                        <i class="fa-solid fa-calendar-check"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card">
+                    <div>
+                        <div class="stat-val">
+                            {% if latest_vitals %}{{ latest_vitals.bmi }}<span class="fs-6 text-muted fw-normal"> kg/m²</span>{% else %}--{% endif %}
+                        </div>
+                        <div class="stat-label">
+                            Latest BMI {% if latest_vitals %}<span class="badge bg-primary-subtle text-primary ms-1">{{ latest_vitals.bmi_category }}</span>{% endif %}
+                        </div>
+                    </div>
+                    <div class="icon-badge badge-navy">
+                        <i class="fa-solid fa-weight-scale"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Quick Action Buttons -->
+        <div class="card card-medi p-3 mb-4">
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+                <span class="fw-bold small text-muted me-2"><i class="fa-solid fa-bolt text-warning me-1"></i> Quick Actions:</span>
+                <a href="{% url 'predictions:diabetes' %}" class="btn btn-outline-primary btn-sm rounded-pill">
+                    <i class="fa-solid fa-droplet me-1"></i> Assess Diabetes
+                </a>
+                <a href="{% url 'predictions:heart' %}" class="btn btn-outline-danger btn-sm rounded-pill">
+                    <i class="fa-solid fa-heart-pulse me-1"></i> Assess Heart Risk
+                </a>
+                <a href="{% url 'predictions:kidney' %}" class="btn btn-outline-info btn-sm rounded-pill">
+                    <i class="fa-solid fa-dna me-1"></i> Assess Kidney Risk
+                </a>
+                <a href="{% url 'reports:upload' %}" class="btn btn-outline-success btn-sm rounded-pill">
+                    <i class="fa-solid fa-file-arrow-up me-1"></i> New Lab Report
+                </a>
+                <a href="{% url 'tracker:add' %}" class="btn btn-outline-dark btn-sm rounded-pill">
+                    <i class="fa-solid fa-plus me-1"></i> Record BP & Sugar
+                </a>
+                <a href="{% url 'assistant:chat' %}" class="btn btn-cyan btn-sm rounded-pill ms-auto">
+                    <i class="fa-solid fa-robot me-1"></i> AI Assistant
+                </a>
+            </div>
+        </div>
+
+        <!-- 4. Health Measurements & Charts Row -->
+        <div class="row g-4 mb-4">
+            <!-- Latest Vitals Card -->
+            <div class="col-lg-4">
+                <div class="card card-medi p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold mb-0">Current Vitals Snapshot</h6>
+                        <a href="{% url 'tracker:dashboard' %}" class="small text-decoration-none">Full History</a>
+                    </div>
+
+                    {% if latest_vitals %}
+                        <div class="d-flex flex-column gap-3">
+                            <div class="d-flex justify-content-between align-items-center p-2 rounded bg-light">
+                                <span class="small text-muted"><i class="fa-solid fa-weight-scale text-primary me-2"></i> Weight / Height</span>
+                                <span class="fw-bold">{{ latest_vitals.weight_kg }} kg / {{ latest_vitals.height_cm }} cm</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center p-2 rounded bg-light">
+                                <span class="small text-muted"><i class="fa-solid fa-heart-pulse text-danger me-2"></i> Blood Pressure</span>
+                                <span class="fw-bold">
+                                    {% if latest_vitals.systolic_bp %}{{ latest_vitals.systolic_bp }}/{{ latest_vitals.diastolic_bp }} mm Hg{% else %}--{% endif %}
+                                </span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center p-2 rounded bg-light">
+                                <span class="small text-muted"><i class="fa-solid fa-droplet text-warning me-2"></i> Blood Glucose</span>
+                                <span class="fw-bold">
+                                    {% if latest_vitals.blood_glucose %}{{ latest_vitals.blood_glucose }} mg/dL{% else %}--{% endif %}
+                                </span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center p-2 rounded bg-light">
+                                <span class="small text-muted"><i class="fa-solid fa-gauge text-info me-2"></i> Resting Heart Rate</span>
+                                <span class="fw-bold">
+                                    {% if latest_vitals.heart_rate %}{{ latest_vitals.heart_rate }} bpm{% else %}--{% endif %}
+                                </span>
+                            </div>
+                            <small class="text-muted text-end">Measured on {{ latest_vitals.recorded_at|date:"d M Y" }}</small>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4 text-muted">
+                            <i class="fa-solid fa-notes-medical fs-1 mb-2 opacity-50"></i>
+                            <p class="small mb-3">No health measurements logged yet.</p>
+                            <a href="{% url 'tracker:add' %}" class="btn btn-sm btn-cyan">Log First Reading</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Health Trend Chart -->
+            <div class="col-lg-8">
+                <div class="card card-medi p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold mb-0">Health Metrics Trend</h6>
+                        <span class="badge bg-light text-muted">Recent Readings</span>
+                    </div>
+                    <div style="height: 230px;">
+                        <canvas id="dashboardTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Recent Activity: Reports & Predictions -->
+        <div class="row g-4">
+            <!-- Recent Reports -->
+            <div class="col-lg-6">
+                <div class="card card-medi p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold mb-0">Recent Diagnostic Reports</h6>
+                        <a href="{% url 'reports:history' %}" class="small text-decoration-none">View All</a>
+                    </div>
+                    {% if reports %}
+                        <div class="list-group list-group-flush gap-2">
+                            {% for r in reports %}
+                                <div class="list-group-item border rounded p-3 d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div class="fw-bold small">{{ r.title }}</div>
+                                        <div class="text-muted" style="font-size: 0.78rem;">
+                                            <i class="fa-regular fa-calendar me-1"></i> {{ r.report_date|date:"d M Y" }} · {{ r.get_report_category_display }}
+                                        </div>
+                                    </div>
+                                    <div class="d-flex gap-2 align-items-center">
+                                        {% if r.status == 'confirmed' %}
+                                            <span class="badge bg-success-subtle text-success small">Confirmed</span>
+                                            <a href="{% url 'reports:detail' r.pk %}" class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-eye"></i></a>
+                                        {% else %}
+                                            <a href="{% url 'reports:confirm' r.pk %}" class="btn btn-warning btn-sm small py-1 px-2">Verify</a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4 text-muted">
+                            <i class="fa-solid fa-file-medical fs-2 mb-2 opacity-50"></i>
+                            <p class="small mb-2">No medical reports uploaded yet.</p>
+                            <a href="{% url 'reports:upload' %}" class="btn btn-sm btn-outline-cyan">Upload Laboratory PDF</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Recent Predictions -->
+            <div class="col-lg-6">
+                <div class="card card-medi p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold mb-0">Recent AI Risk Predictions</h6>
+                        <a href="{% url 'predictions:history' %}" class="small text-decoration-none">View All</a>
+                    </div>
+                    {% if predictions %}
+                        <div class="list-group list-group-flush gap-2">
+                            {% for p in predictions %}
+                                <div class="list-group-item border rounded p-3 d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div class="fw-bold small">{{ p.get_disease_type_display }}</div>
+                                        <div class="text-muted" style="font-size: 0.78rem;">
+                                            {{ p.created_at|date:"d M Y, H:i" }} · Score: {{ p.risk_score }}%
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        {% if p.risk_level == 'Low' %}
+                                            <span class="badge bg-success">Low Risk</span>
+                                        {% elif p.risk_level == 'Moderate' %}
+                                            <span class="badge bg-warning text-dark">Moderate</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">High Risk</span>
+                                        {% endif %}
+                                        <a href="{% url 'predictions:result' p.pk %}" class="btn btn-outline-cyan btn-sm"><i class="fa-solid fa-arrow-right"></i></a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4 text-muted">
+                            <i class="fa-solid fa-chart-line fs-2 mb-2 opacity-50"></i>
+                            <p class="small mb-2">No disease risk screenings run yet.</p>
+                            <a href="{% url 'predictions:home' %}" class="btn btn-sm btn-cyan">Start AI Screening</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const vitalsData = JSON.parse('{{ vitals_chart_json|escapejs }}');
+    const ctx = document.getElementById('dashboardTrendChart');
+    if (ctx && vitalsData.dates && vitalsData.dates.length > 0) {
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: vitalsData.dates,
+                datasets: [
+                    {
+                        label: 'Weight (kg)',
+                        data: vitalsData.weights,
+                        borderColor: '#0f2b48',
+                        backgroundColor: 'rgba(15, 43, 72, 0.08)',
+                        tension: 0.3,
+                        fill: true
+                    },
+                    {
+                        label: 'BMI (kg/m²)',
+                        data: vitalsData.bmis,
+                        borderColor: '#00a8cc',
+                        backgroundColor: 'rgba(0, 168, 204, 0.08)',
+                        tension: 0.3,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' }
+                },
+                scales: {
+                    y: { beginAtZero: false }
+                }
+            }
+        });
+    } else if (ctx) {
+        ctx.parentNode.innerHTML = '<div class="text-center text-muted py-5"><small>Log at least two measurements in the Health Tracker to view your interactive charts.</small></div>';
+    }
+});
+</script>
+{% endblock %}

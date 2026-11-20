@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}My Appointments — MediPredict AI{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    {% with active_tab='appointments' %}
+        {% include 'includes/patient_sidebar.html' %}
+    {% endwith %}
+
+    <div class="dashboard-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h4 class="fw-bold mb-1">My Medical Consultations</h4>
+                <p class="text-muted small mb-0">Record of your upcoming appointments, completed visits, and clinical doctor notes</p>
+            </div>
+            <a href="{% url 'appointments:find_doctors' %}" class="btn btn-cyan btn-sm">
+                <i class="fa-solid fa-plus me-1"></i> Book New Consultation
+            </a>
+        </div>
+
+        <div class="card card-medi p-4">
+            {% if appointments %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light small">
+                            <tr>
+                                <th>Date & Time</th>
+                                <th>Doctor & Specialty</th>
+                                <th>Clinic Details</th>
+                                <th>Status</th>
+                                <th>Consultation Notes</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="small">
+                            {% for a in appointments %}
+                                <tr>
+                                    <td>
+                                        <div class="fw-bold text-primary">{{ a.appointment_date|date:"d M Y" }}</div>
+                                        <div class="text-muted" style="font-size: 0.78rem;">{{ a.time_slot }}</div>
+                                    </td>
+                                    <td>
+                                        <div class="fw-bold">Dr. {{ a.doctor.user.get_full_name|default:a.doctor.user.username }}</div>
+                                        <div class="text-muted small">{{ a.doctor.specialization }}</div>
+                                    </td>
+                                    <td>
+                                        <div>{{ a.doctor.clinic_name }}</div>
+                                        <div class="text-muted" style="font-size: 0.75rem;">{{ a.doctor.city }} · Fee: ₹{{ a.doctor.consultation_fee }}</div>
+                                    </td>
+                                    <td>
+                                        {% if a.status == 'confirmed' %}
+                                            <span class="badge bg-success-subtle text-success"><i class="fa-solid fa-check me-1"></i> Confirmed</span>
+                                        {% elif a.status == 'pending' %}
+                                            <span class="badge bg-warning text-dark"><i class="fa-solid fa-clock me-1"></i> Pending Doctor</span>
+                                        {% elif a.status == 'completed' %}
+                                            <span class="badge bg-primary"><i class="fa-solid fa-circle-check me-1"></i> Completed</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Cancelled</span>
+                                        {% endif %}
+                                    </td>
+                                    <td style="max-width: 250px;">
+                                        {% if a.doctor_notes %}
+                                            <span class="text-dark small">{{ a.doctor_notes }}</span>
+                                        {% else %}
+                                            <span class="text-muted fst-italic">Awaiting consultation</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end">
+                                        {% if a.status == 'completed' %}
+                                            <a href="{% url 'appointments:add_review' a.doctor.pk %}" class="btn btn-outline-warning btn-sm" title="Rate Doctor">
+                                                <i class="fa-solid fa-star"></i> Review
+                                            </a>
+                                        {% endif %}
+                                        <a href="{% url 'appointments:doctor_detail' a.doctor.pk %}" class="btn btn-outline-secondary btn-sm" title="View Doctor Profile">
+                                            <i class="fa-solid fa-user-doctor"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5 text-muted">
+                    <i class="fa-solid fa-calendar-xmark fs-1 mb-3 opacity-50"></i>
+                    <h5>No Appointments Booked Yet</h5>
+                    <p class="small mb-3">Explore our directory of verified healthcare professionals to schedule a visit.</p>
+                    <a href="{% url 'appointments:find_doctors' %}" class="btn btn-cyan">Browse Doctor Directory</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

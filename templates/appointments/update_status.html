@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Update Appointment #{{ appointment.id }} — MediPredict AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="card card-medi p-4 p-md-5">
+                <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
+                    <div>
+                        <h4 class="fw-bold mb-1">Update Appointment Status</h4>
+                        <div class="text-muted small">
+                            Patient: <strong>{{ appointment.patient.get_full_name|default:appointment.patient.username }}</strong> · Date: {{ appointment.appointment_date|date:"d M Y" }} ({{ appointment.time_slot }})
+                        </div>
+                    </div>
+                    <a href="{% url 'appointments:doctor_manage' %}" class="btn btn-outline-secondary btn-sm">Back</a>
+                </div>
+
+                <div class="p-3 bg-light rounded-3 mb-4 small">
+                    <strong>Patient Stated Symptoms / Reason:</strong>
+                    <div class="text-secondary mt-1">{{ appointment.symptoms_reason }}</div>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Appointment Status</label>
+                        {{ form.status }}
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Doctor Consultation Notes & Clinical Guidance</label>
+                        {{ form.doctor_notes }}
+                        <small class="text-muted">These notes will be visible to the patient on their appointment dashboard.</small>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                        <a href="{% url 'appointments:doctor_manage' %}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-cyan px-4">
+                            <i class="fa-solid fa-floppy-disk me-1"></i> Save Updates
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

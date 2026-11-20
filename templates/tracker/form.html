@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} — MediPredict AI{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    {% with active_tab='tracker' %}
+        {% include 'includes/patient_sidebar.html' %}
+    {% endwith %}
+
+    <div class="dashboard-content">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card card-medi p-4 p-md-5">
+                    <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="icon-badge badge-cyan">
+                                <i class="fa-solid fa-heart-pulse"></i>
+                            </div>
+                            <div>
+                                <h4 class="fw-bold mb-0">{{ title }}</h4>
+                                <small class="text-muted">Record vital biomarkers for longitudinal health intelligence</small>
+                            </div>
+                        </div>
+                        <a href="{% url 'tracker:dashboard' %}" class="btn btn-outline-secondary btn-sm">Cancel</a>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Measurement Date *</label>
+                                {{ form.recorded_at }}
+                            </div>
+
+                            <div class="col-md-6 d-flex align-items-center">
+                                <div id="live_bmi_display" class="w-100 text-center p-2 rounded bg-light border">
+                                    <span class="text-muted small">Enter height and weight to calculate BMI</span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Weight (kg) *</label>
+                                {{ form.weight_kg }}
+                                {% if form.weight_kg.errors %}<div class="text-danger small">{{ form.weight_kg.errors }}</div>{% endif %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Height (cm) *</label>
+                                {{ form.height_cm }}
+                                {% if form.height_cm.errors %}<div class="text-danger small">{{ form.height_cm.errors }}</div>{% endif %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Systolic Blood Pressure (mm Hg)</label>
+                                {{ form.systolic_bp }}
+                                {% if form.systolic_bp.errors %}<div class="text-danger small">{{ form.systolic_bp.errors }}</div>{% endif %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Diastolic Blood Pressure (mm Hg)</label>
+                                {{ form.diastolic_bp }}
+                                {% if form.diastolic_bp.errors %}<div class="text-danger small">{{ form.diastolic_bp.errors }}</div>{% endif %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Blood Glucose (mg/dL)</label>
+                                {{ form.blood_glucose }}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Resting Heart Rate (bpm)</label>
+                                {{ form.heart_rate }}
+                            </div>
+
+                            <div class="col-md-12">
+                                <label class="form-label">Session Notes / Observations</label>
+                                {{ form.notes }}
+                            </div>
+                        </div>
+
+                        <div class="mt-4 pt-3 border-top d-flex justify-content-between align-items-center">
+                            <a href="{% url 'tracker:dashboard' %}" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-cyan px-4 py-2">
+                                <i class="fa-solid fa-floppy-disk me-1"></i> Save Measurement
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

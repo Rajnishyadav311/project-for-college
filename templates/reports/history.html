@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}Report History — MediPredict AI{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    {% with active_tab='reports' %}
+        {% include 'includes/patient_sidebar.html' %}
+    {% endwith %}
+
+    <div class="dashboard-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h4 class="fw-bold mb-1">Diagnostic Report History</h4>
+                <p class="text-muted small mb-0">Chronological repository of all uploaded and analyzed laboratory documents</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'reports:compare' %}" class="btn btn-outline-cyan btn-sm">
+                    <i class="fa-solid fa-code-compare me-1"></i> Compare Reports
+                </a>
+                <a href="{% url 'reports:upload' %}" class="btn btn-cyan btn-sm">
+                    <i class="fa-solid fa-cloud-arrow-up me-1"></i> Upload New Report
+                </a>
+            </div>
+        </div>
+
+        <div class="card card-medi p-4">
+            {% if reports %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light small">
+                            <tr>
+                                <th>Report Date</th>
+                                <th>Report Title & Category</th>
+                                <th>Status</th>
+                                <th>Parameters</th>
+                                <th>Attention Needed</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="small">
+                            {% for r in reports %}
+                                <tr>
+                                    <td>
+                                        <div class="fw-bold">{{ r.report_date|date:"d M Y" }}</div>
+                                        <div class="text-muted" style="font-size: 0.75rem;">Uploaded {{ r.upload_date|date:"d M Y" }}</div>
+                                    </td>
+                                    <td>
+                                        <div class="fw-bold text-primary">{{ r.title }}</div>
+                                        <div class="text-muted" style="font-size: 0.78rem;">{{ r.get_report_category_display }}</div>
+                                    </td>
+                                    <td>
+                                        {% if r.status == 'confirmed' %}
+                                            <span class="badge bg-success-subtle text-success"><i class="fa-solid fa-check me-1"></i> Confirmed</span>
+                                        {% elif r.status == 'pending_confirmation' %}
+                                            <span class="badge bg-warning text-dark"><i class="fa-solid fa-clock me-1"></i> Pending Verification</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Processing Failed</span>
+                                        {% endif %}
+                                    </td>
+                                    <td><b>{{ r.total_tests_count }}</b> tests</td>
+                                    <td>
+                                        {% if r.abnormal_tests_count > 0 %}
+                                            <span class="badge bg-danger">{{ r.abnormal_tests_count }} flags</span>
+                                        {% else %}
+                                            <span class="badge bg-success-subtle text-success">All Normal</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="btn-group btn-group-sm">
+                                            {% if r.status == 'confirmed' %}
+                                                <a href="{% url 'reports:detail' r.pk %}" class="btn btn-outline-primary" title="View Full Analysis">
+                                                    <i class="fa-solid fa-eye"></i> View
+                                                </a>
+                                                <a href="{% url 'reports:download_pdf' r.pk %}" class="btn btn-outline-cyan" title="Download PDF Summary">
+                                                    <i class="fa-solid fa-download"></i>
+                                                </a>
+                                            {% else %}
+                                                <a href="{% url 'reports:confirm' r.pk %}" class="btn btn-warning" title="Verify Parameters">
+                                                    <i class="fa-solid fa-pen-to-square"></i> Verify
+                                                </a>
+                                            {% endif %}
+                                            <a href="{% url 'reports:delete' r.pk %}" class="btn btn-outline-danger" title="Delete">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5 text-muted">
+                    <i class="fa-solid fa-file-medical fs-1 mb-3 opacity-50"></i>
+                    <h5>No Laboratory Reports Uploaded</h5>
+                    <p class="small mb-3">Upload your first blood test, lipid panel, or chemistry report in PDF or image format.</p>
+                    <a href="{% url 'reports:upload' %}" class="btn btn-cyan">
+                        <i class="fa-solid fa-cloud-arrow-up me-1"></i> Upload Diagnostic Report
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

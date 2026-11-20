@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+
+{% block title %}System Administration — MediPredict AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="card card-medi p-4 mb-4 border-0" style="background: linear-gradient(135deg, #091a2e, #0f2b48); color: white;">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <span class="badge bg-danger text-white mb-2 px-3 py-1 fw-bold rounded-pill">Platform Administrator</span>
+                <h3 class="fw-bold text-white mb-0">System Control & Operations Center</h3>
+            </div>
+            <div>
+                <span class="badge bg-white text-dark py-2 px-3"><i class="fa-solid fa-server text-success me-1"></i> System Status: Operational</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analytics Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-2 col-sm-4 col-6">
+            <div class="stat-card">
+                <div>
+                    <div class="stat-val text-primary">{{ total_patients }}</div>
+                    <div class="stat-label">Patients</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-sm-4 col-6">
+            <div class="stat-card">
+                <div>
+                    <div class="stat-val text-success">{{ verified_doctors }}</div>
+                    <div class="stat-label">Verified Doctors</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-sm-4 col-6">
+            <div class="stat-card">
+                <div>
+                    <div class="stat-val text-warning">{{ pending_doctors }}</div>
+                    <div class="stat-label">Pending Review</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-sm-4 col-6">
+            <div class="stat-card">
+                <div>
+                    <div class="stat-val text-info">{{ total_predictions }}</div>
+                    <div class="stat-label">Predictions</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-sm-4 col-6">
+            <div class="stat-card">
+                <div>
+                    <div class="stat-val text-dark">{{ total_reports }}</div>
+                    <div class="stat-label">Reports Processed</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-sm-4 col-6">
+            <div class="stat-card">
+                <div>
+                    <div class="stat-val text-secondary">{{ total_appointments }}</div>
+                    <div class="stat-label">Appointments</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Doctor Verification Section -->
+    <div class="card card-medi p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0">Doctor Profile Verification Management</h5>
+            <span class="badge bg-light text-muted">{{ doctors.count }} Registered Practitioners</span>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light small">
+                    <tr>
+                        <th>Doctor Name</th>
+                        <th>Specialization</th>
+                        <th>License / Reg No.</th>
+                        <th>Clinic & City</th>
+                        <th>Status</th>
+                        <th>Verification Action</th>
+                    </tr>
+                </thead>
+                <tbody class="small">
+                    {% for doc in doctors %}
+                        <tr>
+                            <td>
+                                <div class="fw-bold">Dr. {{ doc.user.get_full_name|default:doc.user.username }}</div>
+                                <div class="text-muted" style="font-size: 0.78rem;">{{ doc.user.email }}</div>
+                            </td>
+                            <td>{{ doc.specialization }} ({{ doc.qualification }})</td>
+                            <td><span class="badge bg-light text-dark font-monospace">{{ doc.license_number }}</span></td>
+                            <td>{{ doc.clinic_name }}, {{ doc.city }}</td>
+                            <td>
+                                {% if doc.is_verified %}
+                                    <span class="badge bg-success"><i class="fa-solid fa-check me-1"></i> Verified</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark"><i class="fa-solid fa-clock me-1"></i> Pending</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <form method="post" action="{% url 'core:admin_verify_doctor' doc.pk %}" class="d-inline">
+                                    {% csrf_token %}
+                                    {% if doc.is_verified %}
+                                        <input type="hidden" name="action" value="revoke">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm">Revoke Status</button>
+                                    {% else %}
+                                        <input type="hidden" name="action" value="verify">
+                                        <button type="submit" class="btn btn-success btn-sm">
+                                            <i class="fa-solid fa-check me-1"></i> Approve & Verify
+                                        </button>
+                                    {% endif %}
+                                </form>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">No doctor accounts registered yet.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Disease Model Performance & Logs -->
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card card-medi p-4 h-100">
+                <h5 class="fw-bold mb-3">AI Disease Models Status</h5>
+                <div class="list-group list-group-flush gap-2">
+                    <div class="list-group-item border rounded p-3 d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="fw-bold small text-primary">Diabetes Risk Model</div>
+                            <small class="text-muted">PIMA Indians Dataset · Calibrated Risk Logistic/RF</small>
+                        </div>
+                        <span class="badge bg-success">Active · v1.2</span>
+                    </div>
+                    <div class="list-group-item border rounded p-3 d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="fw-bold small text-danger">Cardiovascular Risk Model</div>
+                            <small class="text-muted">Cleveland Cardiac Study · 11 Biomarkers</small>
+                        </div>
+                        <span class="badge bg-success">Active · v1.2</span>
+                    </div>
+                    <div class="list-group-item border rounded p-3 d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="fw-bold small text-info">Chronic Kidney Disease Model</div>
+                            <small class="text-muted">UCI CKD & KDIGO Criteria · Renal Filtration</small>
+                        </div>
+                        <span class="badge bg-success">Active · v1.2</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card card-medi p-4 h-100">
+                <h5 class="fw-bold mb-3">Clinical Engine Settings</h5>
+                <ul class="list-unstyled small text-secondary">
+                    <li class="mb-2"><i class="fa-solid fa-check-double text-success me-2"></i> PyMuPDF native digital PDF parsing engine active</li>
+                    <li class="mb-2"><i class="fa-solid fa-check-double text-success me-2"></i> OpenCV & Pillow image processing pipeline connected</li>
+                    <li class="mb-2"><i class="fa-solid fa-check-double text-success me-2"></i> ReportLab vector PDF generator configured</li>
+                    <li class="mb-2"><i class="fa-solid fa-check-double text-success me-2"></i> Leaflet interactive mapping & geocoding enabled</li>
+                    <li class="mb-2"><i class="fa-solid fa-check-double text-success me-2"></i> Bilingual English & Hindi translation matrix enabled</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

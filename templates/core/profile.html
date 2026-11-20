@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block title %}User Profile — MediPredict AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card card-medi p-4 p-md-5">
+                <div class="d-flex align-items-center gap-3 border-bottom pb-3 mb-4">
+                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold fs-3" style="width: 64px; height: 64px;">
+                        {{ user.first_name|first|default:user.username|first|upper }}
+                    </div>
+                    <div>
+                        <h4 class="fw-bold mb-0">{{ user.get_full_name|default:user.username }}</h4>
+                        <div class="text-muted small">
+                            Role: <span class="badge bg-secondary-subtle text-secondary">{{ user.get_role_display }}</span> · Username: @{{ user.username }}
+                        </div>
+                    </div>
+                </div>
+
+                {% if user.is_patient and patient_form %}
+                    <form method="post">
+                        {% csrf_token %}
+                        <h5 class="fw-bold text-primary mb-3">Patient Medical Details</h5>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Blood Group</label>
+                                {{ patient_form.blood_group }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">City of Residence</label>
+                                {{ patient_form.city }}
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label">Full Residential Address</label>
+                                {{ patient_form.address }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Emergency Contact Name</label>
+                                {{ patient_form.emergency_contact_name }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Emergency Contact Phone</label>
+                                {{ patient_form.emergency_contact_phone }}
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label">Known Allergies (Drugs, Foods, etc.)</label>
+                                {{ patient_form.allergies }}
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label">Known Chronic Conditions (e.g. Asthma, Hypertension)</label>
+                                {{ patient_form.chronic_conditions }}
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-cyan px-4">
+                                <i class="fa-solid fa-floppy-disk me-1"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+
+                {% elif user.is_doctor and doctor_form %}
+                    <form method="post">
+                        {% csrf_token %}
+                        <h5 class="fw-bold text-primary mb-3">Doctor Professional Profile & Clinic Details</h5>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Medical Specialization</label>
+                                {{ doctor_form.specialization }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Registration / License No.</label>
+                                {{ doctor_form.license_number }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Qualifications</label>
+                                {{ doctor_form.qualification }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Experience (Years)</label>
+                                {{ doctor_form.experience_years }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Clinic / Hospital Name</label>
+                                {{ doctor_form.clinic_name }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">City</label>
+                                {{ doctor_form.city }}
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label">Clinic Address</label>
+                                {{ doctor_form.clinic_address }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Consultation Fee (INR)</label>
+                                {{ doctor_form.consultation_fee }}
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label">Available Days</label>
+                                {{ doctor_form.available_days }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Start Time</label>
+                                {{ doctor_form.available_time_start }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">End Time</label>
+                                {{ doctor_form.available_time_end }}
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label">Doctor Bio / Clinical Focus</label>
+                                {{ doctor_form.bio }}
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-navy px-4">
+                                <i class="fa-solid fa-floppy-disk me-1"></i> Update Professional Profile
+                            </button>
+                        </div>
+                    </form>
+                {% else %}
+                    <p class="text-muted">Administrator account settings are managed through Django Administration.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

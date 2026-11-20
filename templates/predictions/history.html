@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}Prediction History — MediPredict AI{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    {% with active_tab='predictions' %}
+        {% include 'includes/patient_sidebar.html' %}
+    {% endwith %}
+
+    <div class="dashboard-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h4 class="fw-bold mb-1">AI Risk Prediction History</h4>
+                <p class="text-muted small mb-0">Record of all disease risk screenings generated for your profile</p>
+            </div>
+            <a href="{% url 'predictions:home' %}" class="btn btn-cyan btn-sm">
+                <i class="fa-solid fa-plus me-1"></i> New Risk Assessment
+            </a>
+        </div>
+
+        <div class="card card-medi p-4">
+            {% if records %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light small">
+                            <tr>
+                                <th>Date & Time</th>
+                                <th>Disease Assessment</th>
+                                <th>Risk Score</th>
+                                <th>Risk Tier</th>
+                                <th>Model Version</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="small">
+                            {% for r in records %}
+                                <tr>
+                                    <td>{{ r.created_at|date:"d M Y, H:i" }}</td>
+                                    <td class="fw-bold text-primary">{{ r.get_disease_type_display }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="fw-bold">{{ r.risk_score }}%</span>
+                                            <div class="progress" style="width: 50px; height: 5px;">
+                                                <div class="progress-bar {% if r.risk_level == 'Low' %}bg-success{% elif r.risk_level == 'Moderate' %}bg-warning{% else %}bg-danger{% endif %}"
+                                                     style="width: {{ r.risk_score }}%;"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if r.risk_level == 'Low' %}
+                                            <span class="badge bg-success">Low Risk</span>
+                                        {% elif r.risk_level == 'Moderate' %}
+                                            <span class="badge bg-warning text-dark">Moderate</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">High Risk</span>
+                                        {% endif %}
+                                    </td>
+                                    <td><span class="badge bg-light text-muted font-monospace">{{ r.model_version }}</span></td>
+                                    <td>
+                                        <a href="{% url 'predictions:result' r.pk %}" class="btn btn-outline-cyan btn-sm">
+                                            View Analysis <i class="fa-solid fa-chevron-right ms-1"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5 text-muted">
+                    <i class="fa-solid fa-chart-line fs-1 mb-3 opacity-50"></i>
+                    <h5>No Risk Assessments Recorded</h5>
+                    <p class="small mb-3">Begin by assessing your risk for Diabetes, Heart Disease, or Kidney Disease.</p>
+                    <a href="{% url 'predictions:home' %}" class="btn btn-cyan">Start AI Screening</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

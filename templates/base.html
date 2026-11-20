@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MediPredict AI — Intelligent Healthcare & Predictive Diagnostic Platform{% endblock %}</title>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- FontAwesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Leaflet CSS for Maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Custom MediPredict CSS -->
+    <link rel="stylesheet" href="/static/css/medipredict.css">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+    <!-- Top Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-medipredict sticky-top">
+        <div class="container-fluid px-lg-4">
+            <a class="navbar-brand" href="{% url 'core:home' %}">
+                <span class="brand-badge"><i class="fa-solid fa-heart-pulse"></i></span>
+                <span>MediPredict <span style="color: var(--cyan-accent);">AI</span></span>
+            </a>
+
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'core:home' %}"><i class="fa-solid fa-house me-1"></i> Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'predictions:home' %}"><i class="fa-solid fa-chart-line me-1"></i> Disease Prediction</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'reports:upload' %}"><i class="fa-solid fa-file-medical me-1"></i> Report Analyzer</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'appointments:find_doctors' %}"><i class="fa-solid fa-user-doctor me-1"></i> Find Doctors</a>
+                    </li>
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'assistant:chat' %}"><i class="fa-solid fa-robot me-1 text-info"></i> AI Assistant</a>
+                        </li>
+                    {% endif %}
+                </ul>
+
+                <ul class="navbar-nav ms-auto align-items-center gap-2">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a href="{% url 'core:dashboard_redirect' %}" class="btn btn-sm btn-cyan">
+                                <i class="fa-solid fa-gauge-high me-1"></i>
+                                {% if user.is_platform_admin %}Admin Dashboard
+                                {% elif user.is_doctor %}Doctor Portal
+                                {% else %}Patient Portal
+                                {% endif %}
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown">
+                                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-size: 0.85rem;">
+                                    {{ user.first_name|first|default:user.username|first|upper }}
+                                </div>
+                                <span class="d-none d-md-inline fw-semibold">{{ user.first_name|default:user.username }}</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                                <li><a class="dropdown-item" href="{% url 'core:profile' %}"><i class="fa-solid fa-id-badge me-2 text-muted"></i> Profile</a></li>
+                                <li><a class="dropdown-item" href="{% url 'core:dashboard_redirect' %}"><i class="fa-solid fa-gauge me-2 text-muted"></i> Dashboard</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="{% url 'core:logout' %}"><i class="fa-solid fa-arrow-right-from-bracket me-2"></i> Sign Out</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link fw-semibold" href="{% url 'core:login' %}">Sign In</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-sm btn-cyan" href="{% url 'core:register_patient' %}">Get Started Free</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-sm btn-outline-cyan" href="{% url 'core:register_doctor' %}">Doctor Portal</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Global Messages / Alerts -->
+    {% if messages %}
+        <div class="container mt-3">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show shadow-sm" role="alert">
+                    <i class="fa-solid fa-circle-info me-2"></i> {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Main Content Block -->
+    <main class="flex-grow-1">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Global Footer -->
+    <footer class="footer-medipredict">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <h5 class="text-white mb-3 d-flex align-items-center gap-2">
+                        <span class="brand-badge"><i class="fa-solid fa-heart-pulse"></i></span>
+                        MediPredict AI
+                    </h5>
+                    <p class="small text-secondary">
+                        Advanced predictive disease assessment, smart medical laboratory report analysis, and clinical connection platform. Empowering patients and clinicians with intelligent healthcare insights.
+                    </p>
+                    <div class="d-flex gap-3 text-secondary fs-5 mt-3">
+                        <a href="#"><i class="fa-brands fa-linkedin"></i></a>
+                        <a href="#"><i class="fa-brands fa-github"></i></a>
+                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                    </div>
+                </div>
+
+                <div class="col-lg-2 col-md-3 col-6">
+                    <h6 class="text-white mb-3">AI Predictions</h6>
+                    <ul class="list-unstyled small">
+                        <li class="mb-2"><a href="{% url 'predictions:diabetes' %}">Diabetes Risk</a></li>
+                        <li class="mb-2"><a href="{% url 'predictions:heart' %}">Heart Disease</a></li>
+                        <li class="mb-2"><a href="{% url 'predictions:kidney' %}">Kidney Disease</a></li>
+                        <li class="mb-2"><a href="{% url 'predictions:home' %}">Model Pipelines</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-2 col-md-3 col-6">
+                    <h6 class="text-white mb-3">Report Engine</h6>
+                    <ul class="list-unstyled small">
+                        <li class="mb-2"><a href="{% url 'reports:upload' %}">Upload Lab Report</a></li>
+                        <li class="mb-2"><a href="{% url 'reports:history' %}">Report History</a></li>
+                        <li class="mb-2"><a href="{% url 'reports:compare' %}">Compare Trends</a></li>
+                        <li class="mb-2"><a href="{% url 'appointments:find_doctors' %}">Find Specialists</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-4 col-md-12">
+                    <h6 class="text-white mb-3">Clinical Safety & Ethics Notice</h6>
+                    <p class="small text-secondary">
+                        MediPredict AI is an artificial intelligence decision-support and screening platform. Model scores, risk assessments, and report interpretations are designed for informational literacy and must never substitute for direct consultation with a licensed medical practitioner.
+                    </p>
+                    <span class="badge bg-secondary-subtle text-secondary small py-2 px-3">
+                        <i class="fa-solid fa-shield-halved text-info me-1"></i> HIPAA & Medical Safety Compliant Design
+                    </span>
+                </div>
+            </div>
+
+            <hr class="border-secondary my-4">
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center small text-secondary">
+                <div>© 2026 MediPredict AI Healthcare Systems. All rights reserved.</div>
+                <div class="d-flex gap-3 mt-2 mt-sm-0">
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Clinical Service</a>
+                    <a href="#">Ethical AI Guidelines</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/medipredict.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

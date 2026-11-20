@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+
+{% block title %}Doctor Practice Portal — MediPredict AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header Banner -->
+    <div class="card card-medi p-4 mb-4 border-0" style="background: linear-gradient(135deg, #0f2b48, #0a1c30); color: white;">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="badge bg-cyan text-white px-3 py-1 fw-bold rounded-pill" style="background-color: var(--cyan-accent);">
+                        Doctor Portal
+                    </span>
+                    {% if doctor.is_verified %}
+                        <span class="badge bg-success py-1 px-2"><i class="fa-solid fa-certificate me-1"></i> Verified Practitioner</span>
+                    {% else %}
+                        <span class="badge bg-warning text-dark py-1 px-2"><i class="fa-solid fa-clock me-1"></i> Verification Pending Admin Review</span>
+                    {% endif %}
+                </div>
+                <h3 class="fw-bold text-white mb-1">Dr. {{ doctor.user.get_full_name|default:doctor.user.username }}</h3>
+                <p class="text-light opacity-90 small mb-0">
+                    {{ doctor.specialization }} · {{ doctor.qualification }} · {{ doctor.clinic_name }} ({{ doctor.city }})
+                </p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'appointments:doctor_manage' %}" class="btn btn-cyan btn-sm">
+                    <i class="fa-solid fa-calendar-check me-1"></i> Appointment Requests ({{ pending_appts.count }})
+                </a>
+                <a href="{% url 'core:profile' %}" class="btn btn-outline-light btn-sm">
+                    <i class="fa-solid fa-gear me-1"></i> Clinic Settings
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-6">
+            <div class="stat-card">
+                <div>
+                    <div class="stat-val text-warning">{{ pending_appts.count }}</div>
+                    <div class="stat-label">Pending Requests</div>
+                </div>
+                <div class="icon-badge badge-amber"><i class="fa-solid fa-clock"></i></div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="stat-card">
+                <div>
+                    <div class="stat-val text-primary">{{ confirmed_appts.count }}</div>
+                    <div class="stat-label">Confirmed Sessions</div>
+                </div>
+                <div class="icon-badge badge-cyan"><i class="fa-solid fa-calendar-check"></i></div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="stat-card">
+                <div>
+                    <div class="stat-val text-success">{{ completed_appts.count }}</div>
+                    <div class="stat-label">Completed Consults</div>
+                </div>
+                <div class="icon-badge badge-green"><i class="fa-solid fa-user-check"></i></div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="stat-card">
+                <div>
+                    <div class="stat-val">{{ avg_rating }} <i class="fa-solid fa-star text-warning fs-5"></i></div>
+                    <div class="stat-label">Patient Rating</div>
+                </div>
+                <div class="icon-badge badge-navy"><i class="fa-solid fa-award"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Appointments -->
+    <div class="card card-medi p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0">Upcoming Patient Schedule</h5>
+            <a href="{% url 'appointments:doctor_manage' %}" class="btn btn-outline-cyan btn-sm">Manage All Appointments</a>
+        </div>
+
+        {% if confirmed_appts %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light small">
+                        <tr>
+                            <th>Patient Name</th>
+                            <th>Date & Time</th>
+                            <th>Reason / Symptoms</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="small">
+                        {% for a in confirmed_appts %}
+                            <tr>
+                                <td>
+                                    <div class="fw-bold">{{ a.patient.get_full_name|default:a.patient.username }}</div>
+                                    <div class="text-muted" style="font-size: 0.78rem;">{{ a.patient.email }}</div>
+                                </td>
+                                <td>
+                                    <div class="fw-bold text-primary">{{ a.appointment_date|date:"d M Y" }}</div>
+                                    <div class="text-muted small">{{ a.time_slot }}</div>
+                                </td>
+                                <td>
+                                    <div class="text-truncate" style="max-width: 320px;">{{ a.symptoms_reason }}</div>
+                                </td>
+                                <td>
+                                    <a href="{% url 'appointments:update_status' a.pk %}" class="btn btn-sm btn-cyan">
+                                        Update / Prescribe
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-4 text-muted">
+                <i class="fa-solid fa-calendar-xmark fs-2 mb-2 opacity-50"></i>
+                <p class="small mb-0">No confirmed appointments scheduled for today.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Patient Reviews & Feedback -->
+    <div class="card card-medi p-4">
+        <h5 class="fw-bold mb-3">Recent Patient Reviews & Responses</h5>
+        {% if recent_reviews %}
+            <div class="list-group list-group-flush gap-3">
+                {% for r in recent_reviews %}
+                    <div class="list-group-item border rounded p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <span class="fw-bold">{{ r.patient.get_full_name|default:r.patient.username }}</span>
+                                <span class="text-muted small ms-2">{{ r.created_at|date:"d M Y" }}</span>
+                            </div>
+                            <span class="badge bg-warning text-dark">{{ r.rating }} ★</span>
+                        </div>
+                        <p class="small text-secondary mb-2">{{ r.comment }}</p>
+                        {% if r.doctor_reply %}
+                            <div class="p-2 bg-light rounded small border-start border-3 border-cyan">
+                                <strong>Your Reply:</strong> {{ r.doctor_reply }}
+                            </div>
+                        {% else %}
+                            <a href="{% url 'appointments:reply_review' r.pk %}" class="btn btn-outline-cyan btn-sm">
+                                <i class="fa-solid fa-reply me-1"></i> Post Doctor Response
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-4 text-muted small">No patient reviews received yet.</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

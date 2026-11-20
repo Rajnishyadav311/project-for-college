@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block title %}Confirm Extracted Lab Parameters — MediPredict AI{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    {% with active_tab='analyzer' %}
+        {% include 'includes/patient_sidebar.html' %}
+    {% endwith %}
+
+    <div class="dashboard-content">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <span class="badge bg-warning text-dark mb-1">Human-in-the-Loop Verification</span>
+                <h4 class="fw-bold mb-0">Confirm Extracted Laboratory Findings</h4>
+                <p class="text-muted small mb-0">{{ report.title }} · {{ report.report_date|date:"d M Y" }}</p>
+            </div>
+            <div>
+                <button type="button" class="btn btn-outline-cyan btn-sm" onclick="addLabRow()">
+                    <i class="fa-solid fa-plus me-1"></i> Add Another Test Row
+                </button>
+            </div>
+        </div>
+
+        <div class="alert alert-info py-2 small mb-4">
+            <i class="fa-solid fa-circle-info me-2"></i>
+            Please verify the extracted test values against your original document. You can edit any parameter name, measured value, unit, or reference range, as well as delete incorrect rows or add missing ones.
+        </div>
+
+        <div class="card card-medi p-4 mb-4">
+            <form method="post">
+                {% csrf_token %}
+                <div class="table-responsive mb-4">
+                    <table class="table table-bordered align-middle" id="labTable">
+                        <thead class="table-light small">
+                            <tr>
+                                <th style="width: 30%;">Test Name</th>
+                                <th style="width: 18%;">Measured Value</th>
+                                <th style="width: 16%;">Unit</th>
+                                <th style="width: 14%;">Ref Min</th>
+                                <th style="width: 14%;">Ref Max</th>
+                                <th style="width: 8%;" class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="labTableBody" class="small">
+                            {% for p in parameters %}
+                                <tr>
+                                    <td>
+                                        <input type="text" name="test_name[]" class="form-control form-control-sm" value="{{ p.test_name }}" required>
+                                    </td>
+                                    <td>
+                                        <input type="number" step="any" name="measured_value[]" class="form-control form-control-sm" value="{{ p.measured_value|default:'' }}" required>
+                                    </td>
+                                    <td>
+                                        <input type="text" name="unit[]" class="form-control form-control-sm" value="{{ p.unit|default:'' }}" placeholder="e.g. mg/dL">
+                                    </td>
+                                    <td>
+                                        <input type="number" step="any" name="ref_min[]" class="form-control form-control-sm" value="{{ p.reference_min|default:'' }}" placeholder="Min">
+                                    </td>
+                                    <td>
+                                        <input type="number" step="any" name="ref_max[]" class="form-control form-control-sm" value="{{ p.reference_max|default:'' }}" placeholder="Max">
+                                    </td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeLabRow(this)">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td><input type="text" name="test_name[]" class="form-control form-control-sm" placeholder="Test Name" required></td>
+                                    <td><input type="number" step="any" name="measured_value[]" class="form-control form-control-sm" placeholder="Value" required></td>
+                                    <td><input type="text" name="unit[]" class="form-control form-control-sm" placeholder="Unit"></td>
+                                    <td><input type="number" step="any" name="ref_min[]" class="form-control form-control-sm" placeholder="Min"></td>
+                                    <td><input type="number" step="any" name="ref_max[]" class="form-control form-control-sm" placeholder="Max"></td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeLabRow(this)">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addLabRow()">
+                        <i class="fa-solid fa-plus me-1"></i> Add Row
+                    </button>
+                    <button type="submit" class="btn btn-cyan px-4 py-2">
+                        <i class="fa-solid fa-circle-check me-2"></i> Confirm Values & Generate Analysis
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

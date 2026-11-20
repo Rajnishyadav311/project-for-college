@@ -1,0 +1,622 @@
+{% extends 'base.html' %}
+
+{% block title %}MediPredict AI — Next-Generation Healthcare Diagnostics & Predictive Risk Platform{% endblock %}
+
+{% block content %}
+<!-- 1. Hero Section -->
+<section class="hero-wrapper">
+    <div class="container position-relative" style="z-index: 2;">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-7">
+                <div class="hero-pill">
+                    <i class="fa-solid fa-sparkles text-warning"></i>
+                    <span>AI-Powered Clinical Decision Support & Health Intelligence</span>
+                </div>
+                <h1 class="display-4 fw-extrabold text-white mb-4 leading-tight">
+                    Predict Health Risks.<br>
+                    <span style="color: var(--cyan-glow);">Decode Medical Reports.</span><br>
+                    Connect with Specialists.
+                </h1>
+                <p class="lead text-light mb-5" style="max-width: 620px; font-weight: 400; opacity: 0.9;">
+                    MediPredict AI combines validated machine learning models for early disease detection with intelligent medical report OCR analysis and verified physician directory matching.
+                </p>
+
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="{% url 'predictions:home' %}" class="btn btn-cyan btn-lg px-4 py-3">
+                        <i class="fa-solid fa-brain-circuit me-2"></i> Predict Disease Risk
+                    </a>
+                    <a href="{% url 'reports:upload' %}" class="btn btn-outline-light btn-lg px-4 py-3">
+                        <i class="fa-solid fa-file-medical me-2"></i> Analyze Medical Report
+                    </a>
+                    <a href="{% url 'appointments:find_doctors' %}" class="btn btn-link text-white text-decoration-none d-flex align-items-center gap-2">
+                        <span>Find Doctors</span> <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+
+                <div class="row g-4 mt-4 pt-3 border-top border-white border-opacity-10">
+                    <div class="col-4">
+                        <div class="h3 fw-bold text-white mb-0">3+</div>
+                        <div class="small text-light opacity-75">Clinical AI Models</div>
+                    </div>
+                    <div class="col-4">
+                        <div class="h3 fw-bold text-white mb-0">35+</div>
+                        <div class="small text-light opacity-75">Lab Tests Parsed</div>
+                    </div>
+                    <div class="col-4">
+                        <div class="h3 fw-bold text-white mb-0">100%</div>
+                        <div class="small text-light opacity-75">Bilingual (EN / HI)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <!-- Interactive Feature Card Showcase -->
+                <div class="card card-medi p-4 shadow-lg border-0 bg-white" style="border-radius: 20px;">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="icon-badge badge-cyan">
+                                <i class="fa-solid fa-shield-virus"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0 fw-bold">Live AI Screening</h6>
+                                <small class="text-muted">Instant Risk Estimation</small>
+                            </div>
+                        </div>
+                        <span class="badge bg-success-subtle text-success py-2 px-3 rounded-pill fw-semibold">
+                            <i class="fa-solid fa-circle-check me-1"></i> Ready
+                        </span>
+                    </div>
+
+                    <!-- Mini Preview Tabs -->
+                    <div class="list-group list-group-flush gap-2 mb-4">
+                        <a href="{% url 'predictions:diabetes' %}" class="list-group-item list-group-item-action border rounded-3 p-3 d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="icon-badge badge-amber rounded-2" style="width: 36px; height: 36px; font-size: 1rem;">
+                                    <i class="fa-solid fa-droplet"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold small">Diabetes Risk Assessment</div>
+                                    <div class="text-muted" style="font-size: 0.78rem;">PIMA Indians Model & Feature Weights</div>
+                                </div>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-muted small"></i>
+                        </a>
+
+                        <a href="{% url 'predictions:heart' %}" class="list-group-item list-group-item-action border rounded-3 p-3 d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="icon-badge badge-red rounded-2" style="width: 36px; height: 36px; font-size: 1rem;">
+                                    <i class="fa-solid fa-heart-pulse"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold small">Cardiovascular Disease Risk</div>
+                                    <div class="text-muted" style="font-size: 0.78rem;">Cleveland Cardiac Pipeline (11 Biomarkers)</div>
+                                </div>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-muted small"></i>
+                        </a>
+
+                        <a href="{% url 'predictions:kidney' %}" class="list-group-item list-group-item-action border rounded-3 p-3 d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="icon-badge badge-cyan rounded-2" style="width: 36px; height: 36px; font-size: 1rem;">
+                                    <i class="fa-solid fa-dna"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold small">Chronic Kidney Disease Risk</div>
+                                    <div class="text-muted" style="font-size: 0.78rem;">KDIGO & Creatinine Filtration Model</div>
+                                </div>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-muted small"></i>
+                        </a>
+                    </div>
+
+                    <div class="p-3 bg-light rounded-3 text-center">
+                        <span class="text-muted small">
+                            <i class="fa-solid fa-lock text-primary me-1"></i> Patient data is strictly processed with full encryption.
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 2. Disease Prediction Modules Section -->
+<section class="py-5 bg-white">
+    <div class="container py-4">
+        <div class="text-center mb-5" style="max-width: 700px; margin: 0 auto;">
+            <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-semibold mb-2">Machine Learning Pipelines</span>
+            <h2 class="fw-bold">AI Disease Risk Estimators</h2>
+            <p class="text-muted">
+                Our machine learning engines evaluate multi-factorial patient inputs against epidemiological distributions to estimate personal risk tiers and highlight driving biomarker factors.
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Diabetes Card -->
+            <div class="col-md-4">
+                <div class="card card-medi card-medi-interactive h-100 p-4">
+                    <div class="icon-badge badge-amber mb-3">
+                        <i class="fa-solid fa-droplet"></i>
+                    </div>
+                    <h5 class="fw-bold">Diabetes Risk Estimator</h5>
+                    <p class="text-muted small">
+                        Evaluates fasting glucose, HbA1c correlation, insulin, BMI, family pedigree, and blood pressure to detect prediabetes and Type 2 diabetes risk.
+                    </p>
+                    <ul class="list-unstyled small text-secondary mb-4">
+                        <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> Fasting Glucose & BMI interaction</li>
+                        <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> Genetic Pedigree weighting</li>
+                        <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> SHAP-style biomarker breakdown</li>
+                    </ul>
+                    <div class="mt-auto">
+                        <a href="{% url 'predictions:diabetes' %}" class="btn btn-outline-cyan w-100">
+                            Assess Diabetes Risk <i class="fa-solid fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Heart Disease Card -->
+            <div class="col-md-4">
+                <div class="card card-medi card-medi-interactive h-100 p-4">
+                    <div class="icon-badge badge-red mb-3">
+                        <i class="fa-solid fa-heart-pulse"></i>
+                    </div>
+                    <h5 class="fw-bold">Heart Disease Risk Estimator</h5>
+                    <p class="text-muted small">
+                        Cardiovascular risk model assessing resting blood pressure, serum cholesterol, exercise-induced angina, maximum heart rate, and ST depression.
+                    </p>
+                    <ul class="list-unstyled small text-secondary mb-4">
+                        <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> 11 Clinical cardiac parameters</li>
+                        <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> ECG & Anginal symptom mapping</li>
+                        <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> Probability gauge & risk level</li>
+                    </ul>
+                    <div class="mt-auto">
+                        <a href="{% url 'predictions:heart' %}" class="btn btn-outline-cyan w-100">
+                            Assess Heart Risk <i class="fa-solid fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kidney Disease Card -->
+            <div class="col-md-4">
+                <div class="card card-medi card-medi-interactive h-100 p-4">
+                    <div class="icon-badge badge-cyan mb-3">
+                        <i class="fa-solid fa-dna"></i>
+                    </div>
+                    <h5 class="fw-bold">Kidney Disease Risk Estimator</h5>
+                    <p class="text-muted small">
+                        Renal function evaluation tracking serum creatinine, blood urea nitrogen (BUN), urinary albumin, hemoglobin, and specific gravity.
+                    </p>
+                    <ul class="list-unstyled small text-secondary mb-4">
+                        <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> Glomerular filtration markers</li>
+                        <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> Proteinuria & electrolyte balance</li>
+                        <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> Clear clinical limitation notices</li>
+                    </ul>
+                    <div class="mt-auto">
+                        <a href="{% url 'predictions:kidney' %}" class="btn btn-outline-cyan w-100">
+                            Assess Kidney Risk <i class="fa-solid fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 3. AI Medical Report Analyzer Preview -->
+<section class="py-5" style="background-color: var(--bg-ice);">
+    <div class="container py-4">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <span class="badge bg-info-subtle text-info-emphasis px-3 py-2 rounded-pill fw-semibold mb-2">Intelligent OCR & Parsing</span>
+                <h2 class="fw-bold mb-3">AI Medical Report Analyzer</h2>
+                <p class="text-muted mb-4">
+                    Upload any diagnostic laboratory report in PDF or image format (JPG, PNG). MediPredict AI extracts clinical tests, allows you to verify and edit the parameters, and generates bilingual clinical explanations with downloadable PDF summaries.
+                </p>
+
+                <div class="d-flex flex-column gap-3 mb-4">
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="icon-badge badge-cyan rounded-circle flex-shrink-0" style="width: 38px; height: 38px; font-size: 1rem;">
+                            1
+                        </div>
+                        <div>
+                            <div class="fw-bold">Upload PDF or Scanned Document</div>
+                            <div class="text-muted small">Extracted using high-precision PyMuPDF text parsing and OpenCV OCR preprocessing.</div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="icon-badge badge-cyan rounded-circle flex-shrink-0" style="width: 38px; height: 38px; font-size: 1rem;">
+                            2
+                        </div>
+                        <div>
+                            <div class="fw-bold">Interactive Verification Table</div>
+                            <div class="text-muted small">You confirm and adjust extracted values before final analysis for 100% human-verified accuracy.</div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="icon-badge badge-cyan rounded-circle flex-shrink-0" style="width: 38px; height: 38px; font-size: 1rem;">
+                            3
+                        </div>
+                        <div>
+                            <div class="fw-bold">Bilingual Insights & Branded PDF</div>
+                            <div class="text-muted small">Results categorized (Within range, Below range, Above range) with explanations in English and Hindi.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-3">
+                    <a href="{% url 'reports:upload' %}" class="btn btn-navy px-4 py-2">
+                        <i class="fa-solid fa-cloud-arrow-up me-2"></i> Upload Lab Report
+                    </a>
+                    <a href="{% url 'reports:history' %}" class="btn btn-outline-cyan px-4 py-2">
+                        View Report History
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <!-- Mockup Report Card -->
+                <div class="card card-medi shadow-md p-4 bg-white">
+                    <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
+                        <div>
+                            <h6 class="fw-bold text-primary mb-0">Diagnostic Lab Report Summary</h6>
+                            <small class="text-muted">Biomarker Classification Engine</small>
+                        </div>
+                        <span class="badge bg-primary text-white py-2 px-3 rounded-pill">Sample Preview</span>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-sm table-borderless align-middle mb-0">
+                            <thead class="text-muted small border-bottom">
+                                <tr>
+                                    <th>Test Name</th>
+                                    <th>Result</th>
+                                    <th>Ref Range</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="small">
+                                <tr>
+                                    <td class="fw-bold">Fasting Glucose</td>
+                                    <td>118 mg/dL</td>
+                                    <td>70 - 99</td>
+                                    <td><span class="badge bg-danger">Above Range</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">HbA1c</td>
+                                    <td>5.4 %</td>
+                                    <td>4.0 - 5.6</td>
+                                    <td><span class="badge bg-success">Within Range</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Serum Creatinine</td>
+                                    <td>0.9 mg/dL</td>
+                                    <td>0.7 - 1.3</td>
+                                    <td><span class="badge bg-success">Within Range</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Hemoglobin</td>
+                                    <td>10.8 g/dL</td>
+                                    <td>12.0 - 17.5</td>
+                                    <td><span class="badge bg-primary">Below Range</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-3 p-3 bg-light rounded-3 border-start border-3 border-primary">
+                        <div class="fw-bold small text-primary mb-1">Bilingual Insight / नैदानिक टिप्पणी:</div>
+                        <div class="small text-muted mb-1">
+                            • Fasting blood glucose is elevated above normal limit. Correlate with post-meal readings.
+                        </div>
+                        <div class="small text-secondary fst-italic">
+                            • फास्टिंग ब्लड शुगर का स्तर बढ़ा हुआ है। डॉक्टर से आहार और जांच की सलाह लें।
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 4. Find Nearby Doctors Showcase -->
+<section class="py-5 bg-white">
+    <div class="container py-4">
+        <div class="row align-items-center g-4 mb-5">
+            <div class="col-lg-8">
+                <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill fw-semibold mb-2">Verified Doctor Network</span>
+                <h2 class="fw-bold">Connect with Top Medical Specialists</h2>
+                <p class="text-muted mb-0">
+                    Locate verified Cardiologists, Diabetologists, Nephrologists, and General Physicians. View consultation fees, clinic locations on interactive maps, and book appointments directly.
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a href="{% url 'appointments:find_doctors' %}" class="btn btn-cyan px-4 py-2">
+                    <i class="fa-solid fa-location-dot me-1"></i> Browse Doctor Directory
+                </a>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card card-medi p-4 h-100">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; font-size: 1.25rem;">
+                            <i class="fa-solid fa-user-doctor"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0 fw-bold">Dr. Rajesh Sharma</h6>
+                            <small class="text-info fw-semibold">Cardiologist (Heart Specialist)</small>
+                        </div>
+                    </div>
+                    <div class="small text-muted mb-2">
+                        <i class="fa-solid fa-hospital me-1"></i> Max Heart & Vascular Institute, Delhi
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                        <span class="fw-bold text-primary">₹800 Fee</span>
+                        <span class="badge bg-success py-1 px-2"><i class="fa-solid fa-star me-1"></i> 4.9 (48 reviews)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card card-medi p-4 h-100">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="rounded-circle bg-cyan text-white d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; font-size: 1.25rem; background-color: var(--cyan-accent);">
+                            <i class="fa-solid fa-user-doctor"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0 fw-bold">Dr. Priya Verma</h6>
+                            <small class="text-info fw-semibold">Diabetologist & Endocrinologist</small>
+                        </div>
+                    </div>
+                    <div class="small text-muted mb-2">
+                        <i class="fa-solid fa-hospital me-1"></i> Metro Diabetes Care Clinic, Central Delhi
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                        <span class="fw-bold text-primary">₹700 Fee</span>
+                        <span class="badge bg-success py-1 px-2"><i class="fa-solid fa-star me-1"></i> 4.8 (36 reviews)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card card-medi p-4 h-100">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="rounded-circle bg-navy text-white d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; font-size: 1.25rem; background-color: var(--primary-navy);">
+                            <i class="fa-solid fa-user-doctor"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0 fw-bold">Dr. Amit Mehra</h6>
+                            <small class="text-info fw-semibold">Nephrologist (Kidney Specialist)</small>
+                        </div>
+                    </div>
+                    <div class="small text-muted mb-2">
+                        <i class="fa-solid fa-hospital me-1"></i> Apex Kidney Care & Dialysis Center
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                        <span class="fw-bold text-primary">₹900 Fee</span>
+                        <span class="badge bg-success py-1 px-2"><i class="fa-solid fa-star me-1"></i> 4.9 (52 reviews)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 5. How It Works Section -->
+<section class="py-5" style="background-color: var(--bg-ice);">
+    <div class="container py-4">
+        <div class="text-center mb-5" style="max-width: 650px; margin: 0 auto;">
+            <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-semibold mb-2">Workflow</span>
+            <h2 class="fw-bold">How MediPredict AI Works</h2>
+            <p class="text-muted">A streamlined four-step journey to personal health intelligence.</p>
+        </div>
+
+        <div class="row g-4 text-center">
+            <div class="col-lg-3 col-sm-6">
+                <div class="card card-medi p-4 h-100">
+                    <div class="icon-badge badge-cyan mx-auto mb-3" style="width: 56px; height: 56px; font-size: 1.5rem;">
+                        <i class="fa-solid fa-id-card"></i>
+                    </div>
+                    <h6 class="fw-bold">1. Input Vitals or Upload</h6>
+                    <p class="small text-muted mb-0">Enter your clinical parameters manually or upload a laboratory diagnostic PDF/scanned report.</p>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-sm-6">
+                <div class="card card-medi p-4 h-100">
+                    <div class="icon-badge badge-amber mx-auto mb-3" style="width: 56px; height: 56px; font-size: 1.5rem;">
+                        <i class="fa-solid fa-gears"></i>
+                    </div>
+                    <h6 class="fw-bold">2. Intelligent Processing</h6>
+                    <p class="small text-muted mb-0">Pipelines parse biomarkers, calibrate standardized scores, and evaluate against clinical reference intervals.</p>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-sm-6">
+                <div class="card card-medi p-4 h-100">
+                    <div class="icon-badge badge-green mx-auto mb-3" style="width: 56px; height: 56px; font-size: 1.5rem;">
+                        <i class="fa-solid fa-file-invoice"></i>
+                    </div>
+                    <h6 class="fw-bold">3. Understand Findings</h6>
+                    <p class="small text-muted mb-0">Review clear risk tiers, abnormal flags, and bilingual interpretations in simple English and Hindi.</p>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-sm-6">
+                <div class="card card-medi p-4 h-100">
+                    <div class="icon-badge badge-navy mx-auto mb-3" style="width: 56px; height: 56px; font-size: 1.5rem;">
+                        <i class="fa-solid fa-calendar-check"></i>
+                    </div>
+                    <h6 class="fw-bold">4. Consult Specialists</h6>
+                    <p class="small text-muted mb-0">Download your ReportLab PDF summary and schedule an appointment with verified medical specialists.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 6. Sample Testimonials Section (Clearly labelled as sample content) -->
+<section class="py-5 bg-white">
+    <div class="container py-4">
+        <div class="text-center mb-5" style="max-width: 650px; margin: 0 auto;">
+            <span class="badge bg-secondary-subtle text-secondary px-3 py-2 rounded-pill fw-semibold mb-2">Sample Demonstrative Feedback</span>
+            <h2 class="fw-bold">What Users & Doctors Say</h2>
+            <p class="text-muted small">The following testimonials are illustrative sample content demonstrating platform user experiences.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card card-medi p-4 h-100">
+                    <div class="text-warning mb-3">
+                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                    </div>
+                    <p class="small text-secondary mb-3 fst-italic">
+                        "The report analyzer decoded my lipid profile instantly. Being able to read the explanation in Hindi helped my parents understand the significance of high cholesterol without panic."
+                    </p>
+                    <div class="d-flex align-items-center gap-2 mt-auto">
+                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center fw-bold" style="width: 36px; height: 36px;">
+                            AK
+                        </div>
+                        <div>
+                            <div class="fw-bold small">Anil Kumar</div>
+                            <small class="text-muted">Sample Patient User</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card card-medi p-4 h-100">
+                    <div class="text-warning mb-3">
+                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                    </div>
+                    <p class="small text-secondary mb-3 fst-italic">
+                        "As a physician, having patients come in with structured MediPredict summaries and pre-calculated feature contributions makes consultation time far more productive and focused."
+                    </p>
+                    <div class="d-flex align-items-center gap-2 mt-auto">
+                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center fw-bold" style="width: 36px; height: 36px;">
+                            SK
+                        </div>
+                        <div>
+                            <div class="fw-bold small">Dr. S. Kapoor, MD</div>
+                            <small class="text-muted">Sample Participating Physician</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card card-medi p-4 h-100">
+                    <div class="text-warning mb-3">
+                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                    </div>
+                    <p class="small text-secondary mb-3 fst-italic">
+                        "The health vitals tracker and report comparison feature made it very easy to track my creatinine and blood pressure trends over a 6-month period."
+                    </p>
+                    <div class="d-flex align-items-center gap-2 mt-auto">
+                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center fw-bold" style="width: 36px; height: 36px;">
+                            MS
+                        </div>
+                        <div>
+                            <div class="fw-bold small">Meera Sharma</div>
+                            <small class="text-muted">Sample Patient User</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 7. FAQ Section -->
+<section class="py-5" style="background-color: var(--bg-ice);">
+    <div class="container py-4">
+        <div class="text-center mb-5" style="max-width: 650px; margin: 0 auto;">
+            <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-semibold mb-2">Questions & Answers</span>
+            <h2 class="fw-bold">Frequently Asked Questions</h2>
+            <p class="text-muted">Common questions about MediPredict AI and our diagnostic support capabilities.</p>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="accordion accordion-flush shadow-sm rounded-3 overflow-hidden" id="faqAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button fw-bold text-primary collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                Are MediPredict AI predictions a substitute for medical diagnosis?
+                            </button>
+                        </h2>
+                        <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted small">
+                                <strong>No.</strong> MediPredict AI provides predictive risk assessments and educational report interpretations for screening and awareness purposes only. It does not replace a clinical examination, laboratory test confirmation, or physician judgment. Never alter prescribed therapies without consulting a licensed doctor.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button fw-bold text-primary collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                Which medical report formats can I upload?
+                            </button>
+                        </h2>
+                        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted small">
+                                You can upload digital PDF laboratory reports, as well as scanned camera photos and image files in JPG, JPEG, and PNG formats up to 10MB.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button fw-bold text-primary collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                Can I edit or correct values extracted from my medical report?
+                            </button>
+                        </h2>
+                        <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted small">
+                                <strong>Yes.</strong> Every uploaded report presents an editable verification table where you can review, edit, add, or delete test parameters before finalizing your clinical analysis summary.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button fw-bold text-primary collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                                Is MediPredict AI available in Hindi?
+                            </button>
+                        </h2>
+                        <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted small">
+                                Yes! Both the Medical Report Analyzer and the AI Health Assistant Chatbot natively support bilingual explanations in simple English and Hindi (हिंदी).
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 8. CTA Section -->
+<section class="py-5" style="background: linear-gradient(135deg, var(--primary-navy), var(--navy-dark)); color: white;">
+    <div class="container text-center py-4">
+        <h2 class="fw-bold mb-3">Take Charge of Your Health with MediPredict AI</h2>
+        <p class="lead mb-4 text-light opacity-90" style="max-width: 600px; margin: 0 auto;">
+            Join thousands of patients and physicians using intelligent clinical algorithms to manage and understand health risks.
+        </p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{% url 'core:register_patient' %}" class="btn btn-cyan btn-lg px-4 py-2">
+                Create Free Patient Account
+            </a>
+            <a href="{% url 'core:register_doctor' %}" class="btn btn-outline-light btn-lg px-4 py-2">
+                Join as a Verified Doctor
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

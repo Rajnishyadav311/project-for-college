@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}Upload Medical Report — MediPredict AI{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    {% with active_tab='analyzer' %}
+        {% include 'includes/patient_sidebar.html' %}
+    {% endwith %}
+
+    <div class="dashboard-content">
+        <div class="row justify-content-center">
+            <div class="col-lg-9">
+                <!-- Header -->
+                <div class="card card-medi p-4 mb-4 border-0" style="background: linear-gradient(135deg, #0f2b48, #0077b6); color: white;">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="icon-badge bg-white text-primary fs-3" style="width: 56px; height: 56px;">
+                            <i class="fa-solid fa-file-medical"></i>
+                        </div>
+                        <div>
+                            <h4 class="fw-bold mb-1">AI Medical Report Analyzer</h4>
+                            <p class="small text-light opacity-90 mb-0">
+                                Upload your PDF, JPG, JPEG, or PNG laboratory diagnostic reports for automated parameter extraction and clinical interpretation.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Card -->
+                <div class="card card-medi p-4 p-md-5">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                                <label class="form-label">Report Title / Description *</label>
+                                {{ form.title }}
+                                {% if form.title.errors %}<div class="text-danger small">{{ form.title.errors }}</div>{% endif %}
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Report Date *</label>
+                                {{ form.report_date }}
+                                {% if form.report_date.errors %}<div class="text-danger small">{{ form.report_date.errors }}</div>{% endif %}
+                            </div>
+
+                            <div class="col-md-12">
+                                <label class="form-label">Report Category *</label>
+                                {{ form.report_category }}
+                            </div>
+
+                            <div class="col-md-12">
+                                <label class="form-label">Upload Report File (PDF, JPG, JPEG, PNG) *</label>
+                                <div class="p-4 border-2 border-dashed rounded-3 bg-light text-center">
+                                    <i class="fa-solid fa-cloud-arrow-up fs-1 text-primary mb-2"></i>
+                                    <div class="fw-bold mb-1">Select or drag & drop diagnostic document</div>
+                                    <div class="text-muted small mb-3">Maximum file size: 10MB. Digital PDFs and clear scanned camera images accepted.</div>
+                                    <div class="col-md-8 mx-auto">
+                                        {{ form.report_file }}
+                                    </div>
+                                    {% if form.report_file.errors %}
+                                        <div class="text-danger small mt-2">{{ form.report_file.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="col-md-12">
+                                <label class="form-label">Optional Patient Notes / Attending Physician</label>
+                                {{ form.notes }}
+                            </div>
+                        </div>
+
+                        <div class="mt-4 pt-3 border-top d-flex justify-content-between align-items-center">
+                            <span class="text-muted small">
+                                <i class="fa-solid fa-lock text-success me-1"></i> End-to-end encrypted medical processing
+                            </span>
+                            <button type="submit" class="btn btn-cyan px-4 py-2">
+                                <i class="fa-solid fa-wand-magic-sparkles me-2"></i> Upload & Extract Lab Data
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
